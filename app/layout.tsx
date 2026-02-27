@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
+import { Footer, Header } from "@/components/layout";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -14,11 +14,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={` antialiased`}
-      >
-        {children}
+    <html lang="en" className="h-full">
+      <body className="min-h-full bg-zinc-50 font-sans text-slate-900 antialiased dark:bg-black dark:text-slate-50">
+        <div className="min-h-dvh">
+          <Header />
+          {children}
+          <Footer />
+        </div>
       </body>
     </html>
   );
