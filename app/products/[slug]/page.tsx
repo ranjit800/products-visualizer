@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { Configurator } from "@/components/configurator";
 import { Badge } from "@/components/ui";
 import { formatPriceCents, getAllSlugs, getProductBySlug } from "@/lib/products";
 
@@ -157,15 +158,13 @@ export default async function ProductDetailPage({
         </div>
       </div>
 
-      {/* Configurator section anchor — placeholder for Step 6 */}
-      <section
-        id="configurator"
-        aria-label="3D Configurator"
-        className="mt-16 scroll-mt-20 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-12 text-center dark:border-slate-700 dark:bg-slate-900"
-      >
-        <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-          🎛️ 3D Configurator loads here — coming in Step 6
-        </p>
+      {/* 3D Configurator — dynamically imported (ssr: false) */}
+      <section id="configurator" aria-label="3D Configurator" className="mt-16 scroll-mt-20">
+        <Configurator
+          productSlug={product.slug}
+          productName={product.title.en}
+          modelSrc={`/models/${product.slug}.glb`}
+        />
       </section>
     </main>
   );

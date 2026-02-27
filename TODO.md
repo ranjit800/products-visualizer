@@ -119,11 +119,14 @@ Rule: finish a small section â†’ run lint/build/tests (as applicable) â†
 
 ## 6) 3D Configurator (dynamic import)
 
-- [ ] Pick renderer (recommended: `@google/model-viewer`)
-- [ ] Add `components/configurator/Configurator.tsx` (client, dynamically imported)
-- [ ] Bind store â†’ model (color/material toggles)
-- [ ] Lighting presets + camera constraints
-- [ ] Commit: â€œfeat: 3D configurator (lazy-loaded)â€
+- [x] Install `@google/model-viewer`
+- [x] Add `types/model-viewer.d.ts` (JSX type declarations)
+- [x] `components/configurator/ModelViewerCore.tsx` — wraps model-viewer, binds lighting + camera from store
+- [x] `components/configurator/ConfiguratorControls.tsx` — color swatches, accessory toggles, lighting presets, camera sliders, undo/redo/reset
+- [x] `components/configurator/Configurator.tsx` — dynamic import (ssr:false), open/close toggle, AR badge, save button stub
+- [x] Barrel export `components/configurator/index.ts`
+- [x] Wire Configurator into `app/products/[slug]/page.tsx`
+- [x] Commit: "feat: 3D configurator (lazy-loaded)"
 
 ---
 
@@ -210,6 +213,7 @@ Rule: finish a small section â†’ run lint/build/tests (as applicable) â†
 - [ ] API spec (Postman/OpenAPI/markdown)
 - [ ] Lighthouse report (saved as artifact)
 - [ ] Demo video (5â€“7 min)
+
 
 
 
