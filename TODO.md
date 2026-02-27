@@ -101,16 +101,19 @@ Rule: finish a small section â†’ run lint/build/tests (as applicable) â†
 
 ## 5) Configurator state (Zustand)
 
-- [ ] Add Zustand
-- [ ] `store/configuratorStore.ts`
-  - [ ] selected product
-  - [ ] materials/colors
-  - [ ] toggled components
-  - [ ] lighting preset
-  - [ ] camera state
-  - [ ] (bonus) undo/redo history
-- [ ] `store/uiStore.ts` (theme + feature flags)
-- [ ] Commit: â€œfeat: add configurator/ui storesâ€
+- [x] Add Zustand (installed)
+- [x] `store/configuratorStore.ts`
+  - [x] selected product (productSlug)
+  - [x] materials/colors (Record<partId, colorHex>)
+  - [x] toggled components (Record<componentId, boolean>)
+  - [x] lighting preset (studio / daylight / warm)
+  - [x] camera state (azimuth, elevation, distance)
+  - [x] undo/redo history stack
+- [x] `store/uiStore.ts` (theme + feature flags + toasts)
+  - [x] theme: light / dark / high-contrast (persisted to localStorage)
+  - [x] feature flags: enableAR, enablePresence, enableAdvancedLighting
+  - [x] toast notifications with auto-dismiss (4s)
+- [x] Commit: "feat: add configurator/ui stores"
 
 ---
 
@@ -207,6 +210,7 @@ Rule: finish a small section â†’ run lint/build/tests (as applicable) â†
 - [ ] API spec (Postman/OpenAPI/markdown)
 - [ ] Lighthouse report (saved as artifact)
 - [ ] Demo video (5â€“7 min)
+
 
 
 
