@@ -1,7 +1,7 @@
-# Visualizer — TODO (small steps)
+﻿# Visualizer â€” TODO (small steps)
 
 This file breaks the assignment into small, reviewable tasks.  
-Rule: finish a small section → run lint/build/tests (as applicable) → commit.
+Rule: finish a small section â†’ run lint/build/tests (as applicable) â†’ commit.
 
 ---
 
@@ -72,16 +72,18 @@ Rule: finish a small section → run lint/build/tests (as applicable) → commit
 
 ## 3) Catalog (SSR/SSG) + SEO
 
-- [ ] Add product dataset + types
-  - [ ] `lib/products.ts` (typed mock fetchers)
-  - [ ] `public/images/products/*` (later)
-- [ ] Build SSR catalog page
-  - [ ] Pagination (`?page=`)
-  - [ ] Filters (at least 2): category + price range OR tag
-  - [ ] Use `next/image` for thumbnails
-  - [ ] Accessible filter controls (labels, keyboard)
-- [ ] Add product card component + filter components (atomic)
-- [ ] Commit: “feat: SSR catalog with filters and pagination”
+- [x] Add product dataset + types
+  - [x] `lib/products.ts` (typed mock fetchers)
+  - [x] `public/images/products/*` (SVG thumbnails for all 9 products)
+- [x] Build SSR catalog page
+  - [x] Pagination (`?page=`)
+  - [x] Filters (at least 2): category + price range + tag
+  - [x] Use `next/image` for thumbnails
+  - [x] Accessible filter controls (labels, keyboard)
+- [x] Add product card component + filter components (atomic)
+- [x] Add `generateMetadata` + OpenGraph tags to catalog page
+- [x] Home page redirects to `/products`
+- [x] Commit: "feat: SSR catalog with filters and pagination"
 
 ---
 
@@ -90,7 +92,7 @@ Rule: finish a small section → run lint/build/tests (as applicable) → commit
 - [ ] `app/products/[slug]/page.tsx` SSR product details
 - [ ] `generateMetadata` with title/description/og:image
 - [ ] Render meaningful HTML (hero image, headings, description, price, tags)
-- [ ] Commit: “feat: product detail SSR + metadata”
+- [ ] Commit: â€œfeat: product detail SSR + metadataâ€
 
 ---
 
@@ -105,7 +107,7 @@ Rule: finish a small section → run lint/build/tests (as applicable) → commit
   - [ ] camera state
   - [ ] (bonus) undo/redo history
 - [ ] `store/uiStore.ts` (theme + feature flags)
-- [ ] Commit: “feat: add configurator/ui stores”
+- [ ] Commit: â€œfeat: add configurator/ui storesâ€
 
 ---
 
@@ -113,16 +115,16 @@ Rule: finish a small section → run lint/build/tests (as applicable) → commit
 
 - [ ] Pick renderer (recommended: `@google/model-viewer`)
 - [ ] Add `components/configurator/Configurator.tsx` (client, dynamically imported)
-- [ ] Bind store → model (color/material toggles)
+- [ ] Bind store â†’ model (color/material toggles)
 - [ ] Lighting presets + camera constraints
-- [ ] Commit: “feat: 3D configurator (lazy-loaded)”
+- [ ] Commit: â€œfeat: 3D configurator (lazy-loaded)â€
 
 ---
 
 ## 6a) Admin preview panel
 
 - [ ] Implement `/admin/preview` page (client-side only)
-- [ ] Theme switcher: `light` / `dark` / `high-contrast` → stored in `uiStore` + `localStorage`
+- [ ] Theme switcher: `light` / `dark` / `high-contrast` â†’ stored in `uiStore` + `localStorage`
 - [ ] Feature flag toggles: `enableAR`, `enablePresence`, `enableAdvancedLighting`
 - [ ] State propagates via `uiStore` to app shell
 - [ ] Commit: "feat: admin preview panel (theme + feature flags)"
@@ -134,18 +136,18 @@ Rule: finish a small section → run lint/build/tests (as applicable) → commit
 - [ ] AR button/flow inside configurator
 - [ ] Supported: WebXR / Scene Viewer / Quick Look (model-viewer modes)
 - [ ] Unsupported: show 2D fallback + message
-- [ ] Commit: “feat: AR preview with fallback”
+- [ ] Commit: â€œfeat: AR preview with fallbackâ€
 
 ---
 
 ## 8) Save / share configuration (JSON API stub)
 
 - [ ] API routes
-  - [ ] `POST /api/configurations` → `{ id }`
-  - [ ] `GET /api/configurations/[id]` → config JSON
+  - [ ] `POST /api/configurations` â†’ `{ id }`
+  - [ ] `GET /api/configurations/[id]` â†’ config JSON
 - [ ] Save UI (button + success toast + share link)
 - [ ] Share page `app/share/[id]/page.tsx` loads and applies config
-- [ ] Commit: “feat: save/share configurations”
+- [ ] Commit: â€œfeat: save/share configurationsâ€
 
 ---
 
@@ -155,7 +157,7 @@ Rule: finish a small section → run lint/build/tests (as applicable) → commit
 - [ ] Add service worker (next-pwa or Workbox)
 - [ ] Cache catalog shell + last-viewed product
 - [ ] Offline banner + graceful error states
-- [ ] Commit: “feat: PWA offline support”
+- [ ] Commit: â€œfeat: PWA offline supportâ€
 
 ---
 
@@ -165,11 +167,11 @@ Rule: finish a small section → run lint/build/tests (as applicable) → commit
   - [ ] unit tests for catalog filters
   - [ ] unit tests for configurator controls
 - [ ] Playwright e2e (1 scenario):
-  - [ ] catalog → product → open configurator → change color → save
+  - [ ] catalog â†’ product â†’ open configurator â†’ change color â†’ save
 - [ ] Storybook
   - [ ] Button/Input/Card/Modal stories
   - [ ] configurator control stories
-- [ ] Commit: “test: add unit/e2e tests and storybook”
+- [ ] Commit: â€œtest: add unit/e2e tests and storybookâ€
 
 ---
 
@@ -186,8 +188,8 @@ Rule: finish a small section → run lint/build/tests (as applicable) → commit
 
 ## 12) Performance & bundle audit
 
-- [ ] Verify initial JS bundle ≤ 250 KB gzipped (analyze with `next build` output)
-- [ ] Run Lighthouse — target score ≥ 85
+- [ ] Verify initial JS bundle â‰¤ 250 KB gzipped (analyze with `next build` output)
+- [ ] Run Lighthouse â€” target score â‰¥ 85
 - [ ] Verify lazy loading: images (`next/image`), 3D/AR (dynamic import)
 - [ ] Document tradeoffs in README if score < 85
 - [ ] Commit: "perf: bundle audit + lazy loading verified"
@@ -201,5 +203,6 @@ Rule: finish a small section → run lint/build/tests (as applicable) → commit
 - [ ] README updates: architecture + performance + tradeoffs + limitations
 - [ ] API spec (Postman/OpenAPI/markdown)
 - [ ] Lighthouse report (saved as artifact)
-- [ ] Demo video (5–7 min)
+- [ ] Demo video (5â€“7 min)
+
 

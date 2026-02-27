@@ -1,5 +1,19 @@
+import type { Metadata } from "next";
+
 import { Filters, Pagination, ProductCard } from "@/components/catalog";
 import { queryProducts, type ProductCategory } from "@/lib/products";
+
+export const metadata: Metadata = {
+  title: "Products | Visualizer",
+  description:
+    "Browse our curated catalog of chairs, lamps, and desks. Filter by category and price, then configure your product in 3D.",
+  openGraph: {
+    title: "Products | Visualizer",
+    description: "Browse and configure premium furniture products in 3D.",
+    type: "website",
+  },
+};
+
 
 function parseIntOrUndefined(v: string | undefined) {
   if (!v) return undefined;
