@@ -1,18 +1,88 @@
-import Link from "next/link";
+import { Filters, Pagination, ProductCard } from "@/components/catalog";
+import { queryProducts, type ProductCategory } from "@/lib/products";
 
-export default function ProductsPage() {
+function parseIntOrUndefined(v: string | undefined) {
+  if (!v) return undefined;
+  const n = Number.parseInt(v, 10);
+  return Number.isFinite(n) ? n : undefined;
+}
+
+export default async function ProductsPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const sp = await searchParams;
+
+  const page = parseIntOrUndefined(typeof sp.page === "string" ? sp.page : undefined) ?? 1;
+
+  const category =
+    typeof sp.category === "string" && (sp.category === "Chair" || sp.category === "Lamp" || sp.category === "Desk")
+      ? (sp.category as ProductCategory)
+      : undefined;
+
+  const tag = typeof sp.tag === "string" && sp.tag.length > 0 ? sp.tag : undefined;
+
+  const minPrice = parseIntOrUndefined(typeof sp.minPrice === "string" ? sp.minPrice : undefined);
+  const maxPrice = parseIntOrUndefined(typeof sp.maxPrice === "string" ? sp.maxPrice : undefined);
+
+  const { items, total, totalPages } = queryProducts({
+    page,
+    pageSize: 6,
+    category,
+    tag,
+    minPriceCents: typeof minPrice === "number" ? minPrice * 100 : undefined,
+    maxPriceCents: typeof maxPrice === "number" ? maxPrice * 100 : undefined,
+  });
+
+  const currentSearch = new URLSearchParams();
+  for (const [key, value] of Object.entries(sp)) {
+    if (typeof value === "string") currentSearch.set(key, value);
+  }
+  if (!currentSearch.get("page")) currentSearch.set("page", String(page));
+
   return (
     <main className="mx-auto max-w-6xl px-4 py-10">
-      <h1 className="text-2xl font-semibold tracking-tight">Products</h1>
-      <p className="mt-2 text-slate-600 dark:text-slate-300">
-        Catalog page placeholder. Filters + pagination will be implemented next.
-      </p>
+      <div className="flex items-end justify-between gap-6">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            Products
+          </h1>
+          <p className="mt-2 text-slate-600 dark:text-slate-300">
+            Apply filters and browse the product catalog.
+          </p>
+        </div>
+        <p className="text-sm text-slate-600 dark:text-slate-300">
+          {total} results
+        </p>
+      </div>
 
       <div className="mt-6">
-        <Link className="underline underline-offset-4" href="/">
-          Back to home
-        </Link>
+        <Filters
+          value={{
+            category,
+            tag,
+            minPrice: typeof sp.minPrice === "string" ? sp.minPrice : "",
+            maxPrice: typeof sp.maxPrice === "string" ? sp.maxPrice : "",
+          }}
+        />
       </div>
+
+      <section aria-label="Product results" className="mt-8">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {items.map((p) => (
+            <ProductCard key={p.id} product={p} />
+          ))}
+        </div>
+
+        {items.length === 0 ? (
+          <p className="mt-8 text-sm text-slate-600 dark:text-slate-300">
+            No products found.
+          </p>
+        ) : null}
+
+        <Pagination page={page} totalPages={totalPages} searchParams={currentSearch} />
+      </section>
     </main>
   );
 }

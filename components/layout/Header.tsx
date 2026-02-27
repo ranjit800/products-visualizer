@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import { useI18n } from "@/components/i18n/I18nProvider";
 import { Button } from "@/components/ui/Button";
 
 export function Header() {
+  const router = useRouter();
   const { locale, setLocale, t } = useI18n();
 
   return (
@@ -29,7 +31,11 @@ export function Header() {
             variant="ghost"
             size="sm"
             aria-label="Change language"
-            onClick={() => setLocale(locale === "en" ? "hi" : "en")}
+            onClick={() => {
+              const next = locale === "en" ? "hi" : "en";
+              setLocale(next);
+              router.refresh();
+            }}
           >
             {locale.toUpperCase()}
           </Button>
