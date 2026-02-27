@@ -89,10 +89,13 @@ Rule: finish a small section â†’ run lint/build/tests (as applicable) â†
 
 ## 4) Product detail (SSR) + metadata
 
-- [ ] `app/products/[slug]/page.tsx` SSR product details
-- [ ] `generateMetadata` with title/description/og:image
-- [ ] Render meaningful HTML (hero image, headings, description, price, tags)
-- [ ] Commit: â€œfeat: product detail SSR + metadataâ€
+- [x] `app/products/[slug]/page.tsx` SSR product details
+- [x] `generateMetadata` with title/description/og:image/twitter
+- [x] `generateStaticParams` for pre-rendering all product slugs
+- [x] Render meaningful HTML (breadcrumb, hero image, headings, description, price, tags)
+- [x] CTA button: Open 3D Configurator (anchor to #configurator)
+- [x] Configurator section placeholder (ready for Step 6)
+- [x] Commit: "feat: product detail SSR + metadata"
 
 ---
 
@@ -204,5 +207,6 @@ Rule: finish a small section â†’ run lint/build/tests (as applicable) â†
 - [ ] API spec (Postman/OpenAPI/markdown)
 - [ ] Lighthouse report (saved as artifact)
 - [ ] Demo video (5â€“7 min)
+
 
 

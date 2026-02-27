@@ -184,3 +184,18 @@ export function getAllTags(): string[] {
   return Array.from(set).sort();
 }
 
+export function getProductBySlug(slug: string): Product | undefined {
+  return PRODUCTS.find((p) => p.slug === slug);
+}
+
+export function getAllSlugs(): string[] {
+  return PRODUCTS.map((p) => p.slug);
+}
+
+export function formatPriceCents(priceCents: number): string {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(priceCents / 100);
+}
