@@ -132,31 +132,39 @@ Rule: finish a small section â†’ run lint/build/tests (as applicable) â†
 
 ## 6a) Admin preview panel
 
-- [ ] Implement `/admin/preview` page (client-side only)
-- [ ] Theme switcher: `light` / `dark` / `high-contrast` â†’ stored in `uiStore` + `localStorage`
-- [ ] Feature flag toggles: `enableAR`, `enablePresence`, `enableAdvancedLighting`
-- [ ] State propagates via `uiStore` to app shell
-- [ ] Commit: "feat: admin preview panel (theme + feature flags)"
+- [x] Implement `/admin/preview` page (client-side only)
+- [x] Theme switcher: `light` / `dark` / `high-contrast` with visual card buttons
+- [x] Feature flag toggles: `enableAR`, `enablePresence`, `enableAdvancedLighting`
+- [x] Toast notifications on every change (auto-dismiss 4s)
+- [x] Live JSON state display (shows current theme + flags)
+- [x] State persists to localStorage via uiStore
+- [x] `components/ui/ToastContainer.tsx` added to app layout
+- [x] Commit: "feat: admin preview panel (theme + feature flags)"
 
 ---
 
 ## 7) AR preview (deferred) + fallback
 
-- [ ] AR button/flow inside configurator
-- [ ] Supported: WebXR / Scene Viewer / Quick Look (model-viewer modes)
-- [ ] Unsupported: show 2D fallback + message
-- [ ] Commit: â€œfeat: AR preview with fallbackâ€
+- [x] AR button/flow inside configurator (gated by enableAR flag)
+- [x] Supported: WebXR / Scene Viewer / Quick Look detection (useARSupport hook)
+- [x] iOS Quick Look: `<a rel=ar>` trigger
+- [x] Android/WebXR: model-viewer handles AR natively via `ar` attribute
+- [x] Unsupported: ARFallback — 2D image preview + explanatory message
+- [x] AR code deferred inside same dynamic chunk as ModelViewerCore
+- [x] Commit: "feat: AR preview with fallback"
 
 ---
 
-## 8) Save / share configuration (JSON API stub)
+## 8) Save / share configuration
 
-- [ ] API routes
-  - [ ] `POST /api/configurations` â†’ `{ id }`
-  - [ ] `GET /api/configurations/[id]` â†’ config JSON
-- [ ] Save UI (button + success toast + share link)
-- [ ] Share page `app/share/[id]/page.tsx` loads and applies config
-- [ ] Commit: â€œfeat: save/share configurationsâ€
+- [x] `POST /api/configurations` — save config, return id
+- [x] `GET /api/configurations/[id]` — load config by id
+- [x] `lib/configStore.ts` — shared in-memory store (documented limitation)
+- [x] Wire Save button in Configurator to call API
+- [x] Copy shareable link to clipboard on success
+- [x] Show toast with link (success/error feedback)
+- [x] `app/share/[id]/page.tsx` — SSR share page with color swatch, lighting, accessories, camera, product thumbnail
+- [x] Commit: "feat: save/share configuration API"
 
 ---
 
@@ -213,6 +221,9 @@ Rule: finish a small section â†’ run lint/build/tests (as applicable) â†
 - [ ] API spec (Postman/OpenAPI/markdown)
 - [ ] Lighthouse report (saved as artifact)
 - [ ] Demo video (5â€“7 min)
+
+
+
 
 
 

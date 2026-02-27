@@ -12,6 +12,7 @@
 import dynamic from "next/dynamic";
 import * as React from "react";
 
+import { ARButton } from "./ARButton";
 import { ConfiguratorControls } from "./ConfiguratorControls";
 import { Button, Badge } from "@/components/ui";
 import { useConfiguratorStore } from "@/store/configuratorStore";
@@ -42,9 +43,36 @@ type ConfiguratorProps = {
 };
 
 export function Configurator({ productSlug, modelSrc, productName }: ConfiguratorProps) {
-  const { openProduct, materials } = useConfiguratorStore();
-  const { flags } = useUIStore();
+  const { openProduct, materials, components, lighting, camera } = useConfiguratorStore();
+  const { flags, addToast } = useUIStore();
   const [isOpen, setIsOpen] = React.useState(false);
+  const [isSaving, setIsSaving] = React.useState(false);
+
+  const handleSave = React.useCallback(async () => {
+    setIsSaving(true);
+    try {
+      const res = await fetch("/api/configurations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productSlug,
+          materials,
+          components,
+          lightingPreset: lighting,
+          camera,
+        }),
+      });
+      if (!res.ok) throw new Error("Save failed");
+      const { id } = await res.json();
+      const shareUrl = `${window.location.origin}/share/${id}`;
+      await navigator.clipboard.writeText(shareUrl).catch(() => null);
+      addToast({ message: `Saved! Link copied: /share/${id}`, type: "success" });
+    } catch {
+      addToast({ message: "Failed to save configuration. Try again.", type: "error" });
+    } finally {
+      setIsSaving(false);
+    }
+  }, [productSlug, materials, components, lighting, camera, addToast]);
 
   // Register which product is open in the store
   React.useEffect(() => {
@@ -129,20 +157,38 @@ export function Configurator({ productSlug, modelSrc, productName }: Configurato
           )}
         </div>
 
+        {/* AR Preview section — shown below viewer when enableAR flag is on */}
+        {flags.enableAR && modelSrc && (
+          <div className="border-t border-slate-200 bg-slate-50 px-6 py-4 dark:border-slate-700 dark:bg-slate-900/50">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+              AR Preview
+            </p>
+            <ARButton
+              modelSrc={modelSrc}
+              posterSrc={`/images/products/${productSlug.split("-").join("-")}.svg`}
+              productName={productName}
+            />
+          </div>
+        )}
         {/* Controls sidebar */}
         <div className="overflow-y-auto border-l border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900">
           <ConfiguratorControls />
 
-          {/* Save config button (stub — wired in Step 8) */}
+          {/* Save config button */}
           <div className="mt-6 border-t border-slate-200 pt-4 dark:border-slate-700">
-            <Button className="w-full" aria-label="Save your configuration">
+            <Button
+              className="w-full"
+              aria-label="Save your configuration and get a shareable link"
+              onClick={handleSave}
+              disabled={isSaving}
+            >
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
               </svg>
-              Save Configuration
+              {isSaving ? "Saving…" : "Save Configuration"}
             </Button>
             <p className="mt-1 text-center text-xs text-slate-400">
-              Save &amp; get a shareable link
+              Saves &amp; copies shareable link to clipboard
             </p>
           </div>
         </div>
