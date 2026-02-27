@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { Configurator } from "@/components/configurator";
+import { Configurator } from "@/components/configurator/Configurator";
 import { Badge } from "@/components/ui";
 import { formatPriceCents, getAllSlugs, getProductBySlug } from "@/lib/products";
 
@@ -124,13 +124,13 @@ export default async function ProductDetailPage({
           {/* CTA buttons */}
           <div className="flex flex-col gap-3 sm:flex-row">
             <Link
-              href={`/products/${product.slug}#configurator`}
+              href="#configurator"
               className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-slate-900 px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-200"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
               </svg>
-              Open 3D Configurator
+              Customize in 3D
             </Link>
             <Link
               href="/products"
@@ -158,12 +158,15 @@ export default async function ProductDetailPage({
         </div>
       </div>
 
-      {/* 3D Configurator — dynamically imported (ssr: false) */}
-      <section id="configurator" aria-label="3D Configurator" className="mt-16 scroll-mt-20">
+      {/* 3D Configurator Engine (Dynamically loaded on client) */}
+      <section
+        id="configurator"
+        aria-label="3D Configurator"
+        className="mt-16 scroll-mt-20"
+      >
         <Configurator
           productSlug={product.slug}
           productName={product.title.en}
-          modelSrc={`/models/${product.slug}.glb`}
         />
       </section>
     </main>

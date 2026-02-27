@@ -1,0 +1,89 @@
+Project Overview — “Visualizer”
+Build a production-ready, high-performance Product Configurator & Showcase web app (SPA/SSR) that allows users to browse a product catalog, customize a selected product in 3D, preview AR on mobile, save/share configurations, and run a performant, accessible UI. The focus is frontend: solid architecture, UX, optimization, and deployment.
+High-level user flows to implement:
+1.	Catalog (fast list + filters, server side rendered for SEO)
+2.	Product detail → 3D configurator (materials, colors, add/remove parts)
+3.	AR preview (mobile WebXR or <model-viewer> fallback)
+4.	Save / share configuration (persist to a simple JSON API stub)
+5.	Lightweight collaboration hint: live presence indicator (optional WebSocket stub)
+6.	Admin preview: change global theme/feature flags (client-side only)
+
+Must-have (minimum viable deliverables for evaluation)
+Implement all items in this list:
+1. Tech & Quality Requirements
+•	Use Next.js/React.js + TypeScript.
+•	Component architecture with atomic components and a small design system (buttons, inputs, modal, card).
+•	CSS with Tailwind CSS (or equivalent utility-first), keep styles modular.
+•	State management where appropriate (Zustand / Redux / React Context) with clear boundaries.
+•	All code linted (ESLint + Prettier) and type-checked (tsc).
+•	Use modern React patterns (hooks, Suspense where useful, server/client components if using Next 13+).
+2. Catalog & SEO
+•	Product list page must be server-rendered (SSR/SSG) with pagination and at least two filters (category + price or tag).
+•	Each product page must have proper meta tags (title, description, og:image) and render meaningful HTML for crawlers.
+3. 3D Configurator
+•	Use Three.js or @google/model-viewer to render an interactable 3D product model.
+•	Features:
+o	Swap materials/colors on the model
+o	Toggle components (e.g., add/remove an accessory)
+o	Real-time lighting controls (preset light modes)
+o	Camera controls with constrained UX (orbit, zoom)
+•	Implement dynamic imports so 3D code loads only when user opens configurator.
+4. AR Preview
+•	Provide an AR preview flow:
+o	On supported devices use WebXR or <model-viewer> AR.
+o	On unsupported devices show a graceful fallback (2D image preview + message).
+•	Must not block initial page render (defer loading).
+5. Performance & Budgets
+•	Initial JS bundle ≤ 250 KB gzipped (aim for smaller). Use code splitting, route-based chunking, and defer heavy libs.
+•	Lighthouse performance score target ≥ 85 (explain tradeoffs if not achieved).
+•	Implement lazy loading for images/assets and use next/image (or equivalent).
+6. Accessibility & Internationalization
+•	WCAG basics:
+o	Keyboard navigation for configurator controls
+o	Proper ARIA labels
+o	Color contrast checks
+•	App must support i18n for two locales (e.g., en + hi) with at least UI translation for header/footer and product titles.
+7. Offline & Resilience
+•	Add PWA manifest + service worker (workbox or next-pwa) so the catalog shell works offline and shows cached last-viewed product.
+•	Graceful error states for API/network failures.
+8. Tests & Quality Gates
+•	Unit tests for key components (Jest + React Testing Library).
+•	One end-to-end scenario using Playwright (browse catalog → open product → open configurator → change color → save configuration).
+•	Provide Storybook with at least main UI components and configurator controls.
+9. CI/CD + Deployment
+•	CI (GitHub Actions) with:
+o	Lint, typecheck, test
+o	Build
+•	Deploy to Vercel (preferred) or Netlify. Provide a public URL.
+10. Documentation & Deliverables
+•	README with:
+o	Setup & run instructions
+o	Architecture decisions
+o	Performance optimizations made
+o	Known limitations and next steps
+•	POSTMAN or simple API spec for the save/share endpoint (can be a small Express/Node stub or mock server).
+•	5-7 minute demo video (screen capture) showing the flows.
+
+ Nice-to-have / Bonus (extra credit)
+(Implement any; each gives bonus points)
+•	Undo / redo for configurator changes
+•	Export configuration as shareable URL (encode state)
+•	Real-time collaboration indicator (presence / cursors) via WebSocket stub
+•	Progressive streaming of 3D assets (draco compression + glTF)
+•	Multi-tenant theming or per-user preferences
+•	Advanced animation with Framer Motion for UX polish
+•	Visual regression tests (Percy or Playwright snapshot)
+•	Accessibility audit report (axe) and fixes
+•	Lighthouse scores and a short optimization report
+
+Deliverables checklist (What to submit)
+1.	GitHub repo (clean commits, meaningful commit messages)
+2.	Live deployed URL
+3.	README + architecture notes + tradeoffs
+4.	Demo video (5–7 min)
+5.	Storybook link / snapshot
+6.	API spec & mock server (or small backend folder)
+7.	CI workflow file (GitHub Actions)
+8.	Playwright E2E test results
+9.	Lighthouse report (one page) and explanation
+

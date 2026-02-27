@@ -15,14 +15,27 @@ function useARSupport() {
   const [supported, setSupported] = React.useState<boolean | null>(null); // null = unknown
 
   React.useEffect(() => {
-    // Quick Look (iOS Safari)
-    const iosQuickLook = /iPhone|iPad|iPod/.test(navigator.userAgent);
-    // WebXR / Scene Viewer (Android Chrome)
-    const hasXR = "xr" in navigator;
-    // Scene Viewer (Android intent fallback)
-    const isAndroid = /Android/.test(navigator.userAgent);
+    const ua = navigator.userAgent;
+    const isIOS = /iPhone|iPad|iPod/.test(ua);
+    const isAndroid = /Android/.test(ua);
+    const isMobile = isIOS || isAndroid;
 
-    setSupported(iosQuickLook || hasXR || isAndroid);
+    // Only report AR support on actual mobile devices
+    // Desktop Chrome has WebXR API but AR doesn't work there
+    if (!isMobile) {
+      setSupported(false);
+      return;
+    }
+
+    // iOS → Quick Look is always available on Safari
+    if (isIOS) {
+      setSupported(true);
+      return;
+    }
+
+    // Android → check WebXR or fallback to Scene Viewer intent
+    const hasXR = "xr" in navigator;
+    setSupported(hasXR || isAndroid);
   }, []);
 
   return supported;
@@ -82,12 +95,14 @@ export function ARButton({ modelSrc, posterSrc, productName, className }: ARButt
   }
 
   // iOS Quick Look uses an <a rel="ar"> with a special structure
+  // iOS requires a .usdz file — derive from the .glb path
   const isIOS = /iPhone|iPad|iPod/.test(navigator?.userAgent ?? "");
+  const usdzSrc = modelSrc.replace(/\.glb$/i, ".usdz");
 
   if (isIOS) {
     return (
       <a
-        href={modelSrc}
+        href={usdzSrc}
         rel="ar"
         aria-label={`View ${productName} in AR`}
         className={cn(

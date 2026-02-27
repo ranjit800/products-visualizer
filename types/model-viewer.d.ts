@@ -26,6 +26,8 @@ declare namespace JSX {
                 "shadow-intensity"?: string | number;
                 "shadow-softness"?: string | number;
                 autoplay?: boolean;
+                "auto-rotate"?: boolean;
+                "auto-rotate-delay"?: number;
                 loading?: "auto" | "lazy" | "eager";
                 poster?: string;
                 reveal?: "auto" | "interaction" | "manual";
