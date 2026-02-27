@@ -1,0 +1,10 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="80" fill="#09090b"/>
+  <rect x="96" y="160" width="320" height="20" rx="10" fill="#f8fafc"/>
+  <rect x="116" y="190" width="160" height="140" rx="16" fill="#94a3b8"/>
+  <rect x="236" y="190" width="160" height="140" rx="16" fill="#64748b"/>
+  <rect x="116" y="340" width="280" height="16" rx="8" fill="#475569"/>
+  <rect x="196" y="356" width="16" height="80" rx="8" fill="#334155"/>
+  <rect x="300" y="356" width="16" height="80" rx="8" fill="#334155"/>
+  <text x="256" y="476" font-family="system-ui,sans-serif" font-size="36" font-weight="700" fill="#e2e8f0" text-anchor="middle">VIZ</text>
+</svg>
