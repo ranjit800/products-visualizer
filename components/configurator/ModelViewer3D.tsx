@@ -2,6 +2,7 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import type { Product } from "@/lib/products";
+import { useUIStore } from "@/store/uiStore";
 
 // ── Load model-viewer script once ──────────────────────────────────────────
 let scriptLoaded = false;
@@ -65,11 +66,20 @@ function ConfiguratorModal({
     { label: "Amber",   hex: "#f59e0b" }, { label: "Cyan",    hex: "#06b6d4" },
   ];
 
-  const LIGHTING = [
+  const { flags } = useUIStore();
+
+  const BASE_LIGHTING = [
     { value: "neutral", label: "Studio", icon: "💡", exposure: 1.0 },
     { value: "legacy",  label: "Day",    icon: "☀️", exposure: 1.4 },
     { value: "neutral", label: "Warm",   icon: "🕯️", exposure: 0.85 },
   ];
+  const EXTRA_LIGHTING = [
+    { value: "dawn",    label: "Sunset", icon: "🌅", exposure: 0.7 },
+    { value: "neutral", label: "Cool",   icon: "❄️", exposure: 1.6 },
+  ];
+  const LIGHTING = flags.enableAdvancedLighting
+    ? [...BASE_LIGHTING, ...EXTRA_LIGHTING]
+    : BASE_LIGHTING;
 
   const [activeColor, setActiveColor] = React.useState("#1e293b");
   const [activeLighting, setActiveLighting] = React.useState("neutral");
@@ -395,6 +405,35 @@ function ConfiguratorModal({
   );
 }
 
+// ── Live Presence Badge (simulated) ──────────────────────────────────────────
+function PresenceBadge() {
+  const [count, setCount] = React.useState(() => Math.floor(Math.random() * 7) + 2);
+  React.useEffect(() => {
+    const id = setInterval(() => {
+      setCount((c) => Math.max(1, c + (Math.random() > 0.5 ? 1 : -1)));
+    }, 12000);
+    return () => clearInterval(id);
+  }, []);
+  return (
+    <div style={{
+      display: "inline-flex", alignItems: "center", gap: 6,
+      padding: "5px 12px", borderRadius: 20,
+      backgroundColor: "rgba(16,185,129,0.12)",
+      border: "1px solid rgba(16,185,129,0.3)",
+      fontSize: 12, fontWeight: 600, color: "#059669",
+    }}>
+      <span style={{
+        width: 7, height: 7, borderRadius: "50%",
+        backgroundColor: "#10b981",
+        boxShadow: "0 0 0 2px rgba(16,185,129,0.3)",
+        animation: "pulse 2s infinite",
+        display: "inline-block",
+      }} />
+      {count} people viewing this right now
+    </div>
+  );
+}
+
 // ── Main component ──────────────────────────────────────────────────────────
 type ModelViewer3DProps = {
   product: Product & { title: { en: string; hi: string } };
@@ -402,6 +441,7 @@ type ModelViewer3DProps = {
 };
 
 export function ModelViewer3D({ product, formatPrice }: ModelViewer3DProps) {
+  const { flags } = useUIStore();
   const [ready, setReady] = React.useState(false);
   const [showConfigurator, setShowConfigurator] = React.useState(false);
   const [sheetState, setSheetState] = React.useState<SheetState>("collapsed");
@@ -542,7 +582,8 @@ export function ModelViewer3D({ product, formatPrice }: ModelViewer3DProps) {
         </a>
 
         <div style={{ display: "flex", gap: 8 }}>
-          {canAR && !showARFailed && (
+          {/* AR button — gated on enableAR feature flag */}
+          {flags.enableAR && canAR && !showARFailed && (
             <button
               onClick={() => {
                 const v = viewerRef.current;
@@ -564,7 +605,7 @@ export function ModelViewer3D({ product, formatPrice }: ModelViewer3DProps) {
               View in AR
             </button>
           )}
-          {showARFailed && (
+          {showARFailed && flags.enableAR && (
             <div style={{
               display: "flex", alignItems: "center", gap: 6,
               padding: "8px 14px", borderRadius: 24,
@@ -618,6 +659,9 @@ export function ModelViewer3D({ product, formatPrice }: ModelViewer3DProps) {
 
         {/* Scrollable content */}
         <div style={{ flex: 1, overflowY: "auto", padding: "0 20px 24px", display: "flex", flexDirection: "column", gap: 16 }}>
+          {/* Live Presence badge — gated on enablePresence feature flag */}
+          {flags.enablePresence && <PresenceBadge />}
+
           {/* Category badge */}
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" as const }}>
             <span style={{
