@@ -41,7 +41,7 @@ export function ModelViewer3D({ product, formatPrice }: ModelViewer3DProps) {
   // Avoid "Mobile flicker" on desktop reload: render a simple loader until we know the device
   if (!hydrated) {
     return (
-      <div style={{ height: "100vh", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#f8f9fa" }}>
+      <div style={{ position: "fixed", top: 56, left: 0, right: 0, bottom: 0, display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#f8f9fa" }}>
         <p style={{ color: "#64748b", fontStyle: "italic", fontSize: 14 }}>Initializing...</p>
       </div>
     );

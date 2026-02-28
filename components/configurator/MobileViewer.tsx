@@ -91,7 +91,7 @@ export function MobileViewer({ product, formatPrice }: MobileViewerProps) {
   return (
     <div style={{
       position: "fixed",
-      top: "env(safe-area-inset-top)",
+      top: 56, // Sits below the site navbar
       left: 0,
       right: 0,
       bottom: 0,
