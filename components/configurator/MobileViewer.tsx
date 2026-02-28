@@ -113,6 +113,7 @@ export function MobileViewer({ product, formatPrice }: MobileViewerProps) {
             ar
             ar-modes="webxr scene-viewer quick-look"
             ar-scale="auto"
+            ios-src={`/models/${product.slug}.usdz`}
             shadow-intensity="1"
             tone-mapping="commerce"
             loading="eager"

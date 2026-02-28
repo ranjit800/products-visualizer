@@ -309,6 +309,7 @@ export function ConfiguratorModal({
               ar
               ar-modes="webxr scene-viewer quick-look"
               ar-scale="auto"
+              ios-src={`/models/${productSlug}.usdz`}
               shadow-intensity="1"
               tone-mapping="commerce"
               environment-image={LIGHTING[activeLightingIdx].value}
