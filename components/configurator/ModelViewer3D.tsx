@@ -483,9 +483,9 @@ export function ModelViewer3D({ product, formatPrice }: ModelViewer3DProps) {
       const viewportH = typeof window !== "undefined" ? window.innerHeight : 800;
       const base = SHEET_HEIGHTS[sheetState];
       const delta = ((startY - currentY) / viewportH) * 100;
-      return `${Math.min(Math.max(base + delta, 12), 88)}vh`;
+      return `${Math.min(Math.max(base + delta, 12), 88)}dvh`;
     }
-    return `${SHEET_HEIGHTS[sheetState]}vh`;
+    return `${SHEET_HEIGHTS[sheetState]}dvh`;
   };
 
   const handleDragStart = (e: React.TouchEvent | React.MouseEvent) => {
@@ -515,7 +515,7 @@ export function ModelViewer3D({ product, formatPrice }: ModelViewer3DProps) {
   };
 
   return (
-    <div style={{ position: "relative", width: "100%", height: "100vh", overflow: "hidden", backgroundColor: "#f5f5f5" }}>
+    <div style={{ position: "relative", width: "100%", height: "calc(100dvh - 60px)", overflow: "hidden", backgroundColor: "#f5f5f5" }}>
       {/* ── Full-screen 3D Viewer ── */}
       <div style={{ position: "absolute", inset: 0 }}>
         {ready ? (
