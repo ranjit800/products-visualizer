@@ -11,9 +11,9 @@ type SharePageProps = { params: Promise<{ id: string }> };
 /* ── Fetch config server-side ── */
 async function fetchConfig(id: string) {
   try {
-    // Use absolute URL for server-side fetch in Next.js
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
-    const res = await fetch(`${baseUrl}/api/configurations/${id}`, {
+    // Call Render backend directly — avoids proxy self-loop on Vercel
+    const api = process.env.RENDER_API_URL ?? "http://localhost:4000";
+    const res = await fetch(`${api}/api/configurations/${id}`, {
       cache: "no-store",
     });
     if (!res.ok) return null;
