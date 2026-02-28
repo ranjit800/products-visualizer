@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
-import { Filters, Pagination, ProductCard } from "@/components/catalog";
+import { Suspense } from "react";
+import { Filters, MobileFilters, Pagination, ProductCard } from "@/components/catalog";
 import { queryProducts, type ProductCategory } from "@/lib/products";
 
 export const metadata: Metadata = {
@@ -57,21 +58,24 @@ export default async function ProductsPage({
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-10">
-      <div className="flex items-end justify-between gap-6">
+      {/* Desktop Header */}
+      <div className="hidden md:flex items-end justify-between gap-6">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">
-            Products
-          </h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Products</h1>
           <p className="mt-2 text-slate-600 dark:text-slate-300">
             Apply filters and browse the product catalog.
           </p>
         </div>
-        <p className="text-sm text-slate-600 dark:text-slate-300">
-          {total} results
-        </p>
+        <p className="text-sm text-slate-600 dark:text-slate-300">{total} results</p>
       </div>
 
-      <div className="mt-6">
+      {/* Mobile Top Nav (Slide Filters) */}
+      <Suspense fallback={<div className="h-14 animate-pulse bg-slate-100 dark:bg-slate-900 md:hidden" />}>
+        <MobileFilters />
+      </Suspense>
+
+      {/* Desktop Inline Filters */}
+      <div className="mt-6 hidden md:block">
         <Filters
           value={{
             category,
@@ -82,8 +86,12 @@ export default async function ProductsPage({
         />
       </div>
 
-      <section aria-label="Product results" className="mt-8">
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <section aria-label="Product results" className="mt-4 md:mt-8 pb-20 md:pb-4">
+        {/*
+          2 columns on mobile (grid-cols-2)
+          3 columns on desktop (md:grid-cols-3)
+        */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
           {items.map((p) => (
             <ProductCard key={p.id} product={p} />
           ))}
