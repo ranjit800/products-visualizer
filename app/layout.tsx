@@ -64,7 +64,7 @@ export default async function RootLayout({
     cookieLocale === "en" || cookieLocale === "hi" ? cookieLocale : DEFAULT_LOCALE;
 
   return (
-    <html lang={initialLocale} className="h-full">
+    <html lang={initialLocale} className="h-full" suppressHydrationWarning>
       <body className="min-h-full bg-zinc-50 font-sans text-slate-900 antialiased dark:bg-black dark:text-slate-50">
         <Providers initialLocale={initialLocale}>
           <div className="min-h-dvh">

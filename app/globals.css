@@ -1,5 +1,59 @@
 @import "tailwindcss";
 
+/*
+ * Class-based dark mode for Tailwind v4.
+ * ThemeApplier adds `.dark` / `.high-contrast` to <html>.
+ */
+@custom-variant dark (&.dark, .dark &);
+@custom-variant high-contrast (&.high-contrast, .high-contrast &);
+
+/* ── Direct theme CSS (reliable fallback regardless of Tailwind compilation) ── */
+
+/* Dark theme */
+html.dark body {
+  background-color: #09090b !important;
+  color: #f8fafc !important;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+/* Nav / Header in dark */
+html.dark header,
+html.dark nav {
+  background-color: rgba(9, 9, 11, 0.8) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Cards / panels in dark */
+html.dark .bg-white,
+html.dark [class*="bg-white"] {
+  background-color: #18181b !important;
+  color: #f4f4f5 !important;
+}
+
+html.dark .bg-zinc-50,
+html.dark .bg-slate-50 {
+  background-color: #09090b !important;
+}
+
+/* High Contrast theme */
+html.high-contrast body {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+html.high-contrast a,
+html.high-contrast button {
+  color: #ffff00 !important;
+}
+
+html.high-contrast .border-slate-200,
+html.high-contrast [class*="border"] {
+  border-color: #ffffff !important;
+}
+
 /* ── model-viewer web component fix ── */
 model-viewer {
   display: block;
