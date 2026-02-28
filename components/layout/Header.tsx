@@ -11,7 +11,7 @@ export function Header() {
   const { locale, setLocale, t } = useI18n();
 
   return (
-    <header className="border-b border-slate-200 bg-white/80 backdrop-blur dark:border-slate-800 dark:bg-slate-950/80">
+    <header suppressHydrationWarning className="sticky top-0 z-50 border-b border-slate-200 bg-white/80 backdrop-blur dark:border-slate-800 dark:bg-slate-950/80">
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
         <Link href="/" className="font-semibold tracking-tight">
           {t("appName")}

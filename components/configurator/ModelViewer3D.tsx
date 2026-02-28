@@ -517,7 +517,8 @@ export function ModelViewer3D({ product, formatPrice }: ModelViewer3DProps) {
   return (
     <div style={{
       position: "fixed",
-      top: 60,
+      // top: 56,
+      top: "env(safe-area-inset-top)",
       left: 0,
       right: 0,
       bottom: 0,
