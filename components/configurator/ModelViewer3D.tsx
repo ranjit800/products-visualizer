@@ -515,7 +515,16 @@ export function ModelViewer3D({ product, formatPrice }: ModelViewer3DProps) {
   };
 
   return (
-    <div style={{ position: "relative", width: "100%", height: "calc(100dvh - 60px)", overflow: "hidden", backgroundColor: "#f5f5f5" }}>
+    <div style={{
+      position: "fixed",
+      top: 60,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      overflow: "hidden",
+      backgroundColor: "#f5f5f5",
+      zIndex: 10,
+    }}>
       {/* ── Full-screen 3D Viewer ── */}
       <div style={{ position: "absolute", inset: 0 }}>
         {ready ? (
@@ -624,11 +633,13 @@ export function ModelViewer3D({ product, formatPrice }: ModelViewer3DProps) {
           position: "absolute", bottom: 0, left: 0, right: 0,
           height: getSheetHeight(),
           transition: isDragging ? "none" : "height 0.35s cubic-bezier(0.4,0,0.2,1)",
-          backgroundColor: "rgba(255,255,255,0.97)",
-          backdropFilter: "blur(20px)",
+          backgroundColor: "rgba(255,255,255,0.98)",
+          backdropFilter: "blur(24px)",
+          WebkitBackdropFilter: "blur(24px)",
           borderRadius: "24px 24px 0 0",
-          boxShadow: "0 -8px 40px rgba(0,0,0,0.18)",
+          boxShadow: "0 -4px 32px rgba(0,0,0,0.14)",
           display: "flex", flexDirection: "column",
+          paddingBottom: "env(safe-area-inset-bottom, 0px)",
           zIndex: 30,
         }}
       >
