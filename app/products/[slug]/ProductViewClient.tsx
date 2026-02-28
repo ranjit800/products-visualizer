@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import dynamic from "next/dynamic";
 import type { Product } from "@/lib/products";
 
@@ -34,5 +35,9 @@ type Props = {
 };
 
 export function ProductViewClient({ product, formatPrice }: Props) {
-  return <ModelViewer3D product={product} formatPrice={formatPrice} />;
+  return (
+    <Suspense fallback={null}>
+      <ModelViewer3D product={product} formatPrice={formatPrice} />
+    </Suspense>
+  );
 }

@@ -54,6 +54,14 @@ export type ConfiguratorActions = {
     /** Open a product in the configurator */
     openProduct: (slug: string) => void;
 
+    /** Bulk-load a saved configuration (skips undo history) */
+    loadConfig: (config: {
+        materials: Record<string, string>;
+        components: Record<string, boolean>;
+        lighting: LightingPreset;
+        camera: CameraState;
+    }) => void;
+
     /** Set a material/color for a specific part */
     setMaterial: (partId: string, value: string) => void;
 
@@ -114,6 +122,14 @@ export const useConfiguratorStore = create<ConfiguratorState & ConfiguratorActio
 
             openProduct(slug) {
                 set({ ...DEFAULT_STATE, productSlug: slug }, false, "openProduct");
+            },
+
+            loadConfig({ materials, components, lighting, camera }) {
+                set(
+                    { materials, components, lighting, camera, _past: [], _future: [] },
+                    false,
+                    "loadConfig",
+                );
             },
 
             setMaterial(partId, value) {

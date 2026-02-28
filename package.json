@@ -42,5 +42,22 @@
     "tailwindcss": "^4.2.1",
     "ts-jest": "^29.4.6",
     "typescript": "^5"
-  }
+  },
+  "description": "This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).",
+  "main": "jest.config.js",
+  "directories": {
+    "lib": "lib",
+    "test": "tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ranjit800/products-visualizer.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ranjit800/products-visualizer/issues"
+  },
+  "homepage": "https://github.com/ranjit800/products-visualizer#readme"
 }

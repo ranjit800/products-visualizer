@@ -87,7 +87,7 @@ export default async function SharePage({ params }: SharePageProps) {
             <p className="text-sm text-slate-500">{formatPriceCents(product.priceCents)}</p>
           </div>
           <Link
-            href={`/products/${product.slug}#configurator`}
+            href={`/products/${product.slug}?configId=${id}`}
             className="ml-auto inline-flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-xs font-semibold text-white hover:bg-slate-800 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-200"
           >
             Open &amp; Edit

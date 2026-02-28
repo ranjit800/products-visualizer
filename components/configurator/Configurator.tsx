@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import * as React from "react";
 import * as ReactDOM from "react-dom";
+import { useSearchParams } from "next/navigation";
 import { useConfiguratorStore, type LightingPreset } from "@/store/configuratorStore";
 import { useUIStore } from "@/store/uiStore";
 import { cn } from "@/lib/cn";
@@ -78,10 +79,11 @@ export function Configurator({ productSlug, productName, defaultOpen = false }: 
   const {
     materials, components, lighting, camera,
     openProduct, setMaterial, toggleComponent, setLighting, setCamera,
-    reset, undo, redo, _past, _future,
+    loadConfig, reset, undo, redo, _past, _future,
   } = useConfiguratorStore();
 
   const { flags, addToast } = useUIStore();
+  const searchParams = useSearchParams();
   const [isOpen, setIsOpen] = React.useState(false);
   const [isSaving, setIsSaving] = React.useState(false);
   const [mounted, setMounted] = React.useState(false);
@@ -93,9 +95,29 @@ export function Configurator({ productSlug, productName, defaultOpen = false }: 
     if (defaultOpen) setIsOpen(true);
   }, [defaultOpen]);
 
+  // Open the product — if a configId is in the URL, restore that saved configuration on top
   React.useEffect(() => {
     openProduct(productSlug);
-  }, [productSlug, openProduct]);
+
+    const configId = searchParams?.get("configId");
+    if (!configId) return;
+
+    fetch(`/api/configurations/${configId}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((config) => {
+        if (!config) return;
+        loadConfig({
+          materials: config.materials ?? {},
+          components: config.components ?? {},
+          lighting: config.lightingPreset ?? "studio",
+          camera: config.camera ?? { azimuth: 0, elevation: 15, distance: 3 },
+        });
+        setIsOpen(true);
+        addToast({ message: "Configuration restored! Ready to edit.", type: "success" });
+      })
+      .catch(() => null);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [productSlug]);
 
   // Lock body scroll + Escape key when modal is open
   React.useEffect(() => {

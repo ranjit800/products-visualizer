@@ -1,21 +1,4 @@
 "use client";
-
-/**
- * ModelViewer3D — standalone full-screen 3D model viewer with
- * a draggable bottom info sheet overlay. Inspired by TIf-consumer-app-main.
- *
- * Layout:
- *  ┌─────────────────────────────┐
- *  │  3D model-viewer (full bg)  │
- *  │  ← AR View btn (top right)  │
- *  ├─────────────────────────────┤
- *  │  Bottom sheet (draggable)   │
- *  │  ─ product name / price     │
- *  │  ─ description / tags       │
- *  │  ─ Customize in 3D button   │
- *  └─────────────────────────────┘
- */
-
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import type { Product } from "@/lib/products";
@@ -83,9 +66,9 @@ function ConfiguratorModal({
   ];
 
   const LIGHTING = [
-    { value: "neutral", label: "Studio", icon: "💡" },
-    { value: "legacy",  label: "Day",    icon: "☀️" },
-    { value: "neutral", label: "Warm",   icon: "🕯️" },
+    { value: "neutral", label: "Studio", icon: "💡", exposure: 1.0 },
+    { value: "legacy",  label: "Day",    icon: "☀️", exposure: 1.4 },
+    { value: "neutral", label: "Warm",   icon: "🕯️", exposure: 0.85 },
   ];
 
   const [activeColor, setActiveColor] = React.useState("#1e293b");
@@ -93,18 +76,56 @@ function ConfiguratorModal({
   const [exposure, setExposure] = React.useState(1.0);
   const [isSaving, setIsSaving] = React.useState(false);
   const [saveMsg, setSaveMsg] = React.useState("");
+  const [restoredMsg, setRestoredMsg] = React.useState("");
+
+  // Track lighting by index so Studio(0) and Warm(2) can share "neutral" env without conflicting
+  const [activeLightingIdx, setActiveLightingIdx] = React.useState(0);
+  const [accessories, setAccessories] = React.useState<Record<string, boolean>>({
+    cushion: false, armrest: false, lampshade: false, base: false,
+  });
+
+  // ── Restore from configId in URL on mount ──
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const configId = params.get("configId");
+    if (!configId) return;
+    fetch(`/api/configurations/${configId}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((config) => {
+        if (!config) return;
+        if (config.materials?.primary) setActiveColor(config.materials.primary);
+        // Map saved lightingPreset → LIGHTING index
+        const presetToIdx: Record<string, number> = { studio: 0, daylight: 1, warm: 2 };
+        const idx = presetToIdx[config.lightingPreset ?? "studio"] ?? 0;
+        setActiveLightingIdx(idx);
+        // Use exact saved exposure if present, else fall back to preset default
+        setExposure(typeof config.exposure === "number" ? config.exposure : LIGHTING[idx].exposure);
+        if (config.components && typeof config.components === "object") {
+          setAccessories((prev) => ({ ...prev, ...(config.components as Record<string, boolean>) }));
+        }
+        setRestoredMsg("✓ Configuration restored!");
+        setTimeout(() => setRestoredMsg(""), 3000);
+      })
+      .catch(() => null);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const toggleAccessory = (id: string) =>
+    setAccessories((prev) => ({ ...prev, [id]: !prev[id] }));
 
   const handleSave = async () => {
     setIsSaving(true);
     try {
+      const presetNames = ["studio", "daylight", "warm"] as const;
       const res = await fetch("/api/configurations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           productSlug,
           materials: { primary: activeColor },
-          components: {},
-          lightingPreset: "studio",
+          components: accessories,
+          lightingPreset: presetNames[activeLightingIdx] ?? "studio",
+          exposure,
           camera: { azimuth: 0, elevation: 45, distance: 4 },
         }),
       });
@@ -120,6 +141,13 @@ function ConfiguratorModal({
       setIsSaving(false);
     }
   };
+
+  const ACCESSORIES_DEF = [
+    { id: "cushion",   label: "Cushion",    icon: "🪑" },
+    { id: "armrest",   label: "Armrest",    icon: "🦾" },
+    { id: "lampshade", label: "Lamp Shade", icon: "💡" },
+    { id: "base",      label: "Base Plate", icon: "⬛" },
+  ];
 
   return ReactDOM.createPortal(
     <div
@@ -143,6 +171,9 @@ function ConfiguratorModal({
           <span style={{ color: "rgba(255,255,255,0.7)", fontSize: 13, fontWeight: 600 }}>— {productName}</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          {restoredMsg && (
+            <span style={{ color: "#10b981", fontSize: 12, fontWeight: 600 }}>{restoredMsg}</span>
+          )}
           {saveMsg && (
             <span style={{ color: "#10b981", fontSize: 12, fontWeight: 600 }}>{saveMsg}</span>
           )}
@@ -209,29 +240,32 @@ function ConfiguratorModal({
 
           <div style={{ height: 1, backgroundColor: "rgba(255,255,255,0.06)" }} />
 
-          {/* Lighting */}
+          {/* Lighting — tracked by index so Studio≠Warm even though both use "neutral" env */}
           <div style={{ padding: 16 }}>
             <p style={{ color: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.14em", marginBottom: 10 }}>
               Lighting
             </p>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6 }}>
-              {LIGHTING.map((l, i) => (
-                <button
-                  key={i}
-                  onClick={() => { setActiveLighting(l.value); setExposure(l.value === "legacy" ? 1.4 : l.value === "neutral" && i === 2 ? 0.85 : 1.0); }}
-                  style={{
-                    display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
-                    padding: "10px 6px", borderRadius: 10, border: "none", cursor: "pointer",
-                    backgroundColor: activeLighting === l.value && i === 0 ? "rgba(139,92,246,0.2)" : "rgba(255,255,255,0.05)",
-                    color: "rgba(255,255,255,0.5)", fontSize: 10, fontWeight: 600,
-                    outline: activeLighting === l.value ? "1px solid rgba(139,92,246,0.5)" : "none",
-                    transition: "all 0.15s",
-                  }}
-                >
-                  <span style={{ fontSize: 18 }}>{l.icon}</span>
-                  {l.label}
-                </button>
-              ))}
+              {LIGHTING.map((l, i) => {
+                const isActive = activeLightingIdx === i;
+                return (
+                  <button
+                    key={i}
+                    onClick={() => { setActiveLightingIdx(i); setExposure(l.exposure); }}
+                    style={{
+                      display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
+                      padding: "10px 6px", borderRadius: 10, border: "none", cursor: "pointer",
+                      backgroundColor: isActive ? "rgba(139,92,246,0.2)" : "rgba(255,255,255,0.05)",
+                      color: "rgba(255,255,255,0.5)", fontSize: 10, fontWeight: 600,
+                      outline: isActive ? "1px solid rgba(139,92,246,0.5)" : "none",
+                      transition: "all 0.15s",
+                    }}
+                  >
+                    <span style={{ fontSize: 18 }}>{l.icon}</span>
+                    {l.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -249,6 +283,42 @@ function ConfiguratorModal({
               aria-label="Exposure"
             />
             <p style={{ color: "rgba(255,255,255,0.25)", fontSize: 10, fontFamily: "monospace", marginTop: 4 }}>{exposure.toFixed(2)}</p>
+          </div>
+
+          <div style={{ height: 1, backgroundColor: "rgba(255,255,255,0.06)" }} />
+
+          {/* Accessories */}
+          <div style={{ padding: 16 }}>
+            <p style={{ color: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.14em", marginBottom: 10 }}>
+              Accessories
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {ACCESSORIES_DEF.map((a) => (
+                <button
+                  key={a.id}
+                  onClick={() => toggleAccessory(a.id)}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 8,
+                    padding: "8px 10px", borderRadius: 8, border: "none", cursor: "pointer",
+                    backgroundColor: accessories[a.id] ? "rgba(139,92,246,0.2)" : "rgba(255,255,255,0.05)",
+                    outline: accessories[a.id] ? "1px solid rgba(139,92,246,0.5)" : "none",
+                    color: "rgba(255,255,255,0.7)", fontSize: 12, fontWeight: 600,
+                    transition: "all 0.15s", textAlign: "left",
+                  }}
+                >
+                  <span style={{ fontSize: 16 }}>{a.icon}</span>
+                  <span style={{ flex: 1 }}>{a.label}</span>
+                  <span style={{
+                    fontSize: 10, padding: "2px 6px", borderRadius: 4,
+                    backgroundColor: accessories[a.id] ? "#7c3aed" : "rgba(255,255,255,0.1)",
+                    color: accessories[a.id] ? "white" : "rgba(255,255,255,0.35)",
+                    fontWeight: 700,
+                  }}>
+                    {accessories[a.id] ? "ON" : "OFF"}
+                  </span>
+                </button>
+              ))}
+            </div>
           </div>
 
           <div style={{ height: 1, backgroundColor: "rgba(255,255,255,0.06)" }} />
@@ -279,7 +349,7 @@ function ConfiguratorModal({
               ar-scale="auto"
               shadow-intensity="1"
               tone-mapping="commerce"
-              environment-image={activeLighting}
+              environment-image={LIGHTING[activeLightingIdx].value}
               exposure={exposure}
               loading="eager"
               reveal="auto"
@@ -349,6 +419,10 @@ export function ModelViewer3D({ product, formatPrice }: ModelViewer3DProps) {
   React.useEffect(() => {
     setMounted(true);
     loadModelViewer().then(() => setReady(true)).catch(() => setReady(true));
+    // Auto-open configurator if arriving from a share link
+    if (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("configId")) {
+      setShowConfigurator(true);
+    }
   }, []);
 
   // Detect AR after model loads
