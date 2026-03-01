@@ -17,7 +17,7 @@ const sampleProduct: Product = {
   priceCents: 12900,
   category: "Chair",
   tags: ["Office", "Ergonomic"],
-  thumbnailSrc: "/images/products/aurora-chair.svg",
+  thumbnailSrc: "/poster/aurora-chair-poster.webp",
 };
 
 const meta: Meta<typeof ProductCard> = {
