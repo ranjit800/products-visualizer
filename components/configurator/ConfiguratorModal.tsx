@@ -327,7 +327,7 @@ export function ConfiguratorModal({
               ref={viewerRef}
               src={modelSrc}
               alt={`3D model of ${productName}`}
-              poster={`/images/products/${productSlug}.svg`}
+              poster={`/poster/${productSlug}-poster.webp`}
               camera-controls
               auto-rotate
               ar

@@ -43,7 +43,7 @@ export function DesktopViewer({ product, formatPrice }: DesktopViewerProps) {
   });
 
   const modelSrc = `/models/${product.slug}.glb`;
-  const posterSrc = `/images/products/${product.slug}.svg`;
+  const posterSrc = `/poster/${product.slug}-poster.webp`;
 
   const LIGHTING = flags.enableAdvancedLighting
     ? [...BASE_LIGHTING, ...EXTRA_LIGHTING]

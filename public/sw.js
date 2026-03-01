@@ -8,7 +8,7 @@
  * - Offline fallback: /offline page
  */
 
-const CACHE_NAME = "visualizer-v1";
+const CACHE_NAME = "visualizer-v2";
 const OFFLINE_URL = "/offline";
 
 const PRECACHE_URLS = [
@@ -56,10 +56,11 @@ self.addEventListener("fetch", (event) => {
   // Static assets — cache-first
   if (
     url.pathname.startsWith("/_next/static/") ||
-    url.pathname.startsWith("/images/") ||
+    url.pathname.startsWith("/poster/") ||
     url.pathname.startsWith("/icons/") ||
     url.pathname.endsWith(".svg") ||
     url.pathname.endsWith(".png") ||
+    url.pathname.endsWith(".webp") ||
     url.pathname.endsWith(".woff2")
   ) {
     event.respondWith(

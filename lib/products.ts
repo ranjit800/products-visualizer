@@ -25,7 +25,7 @@ export const PRODUCTS: Product[] = [
     category: "Chair",
     priceCents: 12999,
     tags: ["minimal", "indoor"],
-    thumbnailSrc: "/images/products/aurora-chair.svg",
+    thumbnailSrc: "/poster/aurora-chair-poster.webp",
   },
   {
     id: "chair-ember",
@@ -38,7 +38,7 @@ export const PRODUCTS: Product[] = [
     category: "Chair",
     priceCents: 14999,
     tags: ["comfort", "indoor"],
-    thumbnailSrc: "/images/products/ember-chair.svg",
+    thumbnailSrc: "/poster/ember-chair-poster.webp",
   },
   {
     id: "chair-orbit",
@@ -51,7 +51,7 @@ export const PRODUCTS: Product[] = [
     category: "Chair",
     priceCents: 10999,
     tags: ["compact", "minimal"],
-    thumbnailSrc: "/images/products/orbit-chair.svg",
+    thumbnailSrc: "/poster/orbit-chair-poster.webp",
   },
   {
     id: "lamp-lumen",
@@ -64,7 +64,7 @@ export const PRODUCTS: Product[] = [
     category: "Lamp",
     priceCents: 6999,
     tags: ["desk", "minimal"],
-    thumbnailSrc: "/images/products/lumen-lamp.svg",
+    thumbnailSrc: "/poster/lumen-lamp-poster.webp",
   },
   {
     id: "lamp-halo",
@@ -77,7 +77,7 @@ export const PRODUCTS: Product[] = [
     category: "Lamp",
     priceCents: 8999,
     tags: ["ambient", "indoor"],
-    thumbnailSrc: "/images/products/halo-lamp.svg",
+    thumbnailSrc: "/poster/halo-lamp-poster.webp",
   },
   {
     id: "lamp-arc",
@@ -90,7 +90,7 @@ export const PRODUCTS: Product[] = [
     category: "Lamp",
     priceCents: 15999,
     tags: ["floor", "warm"],
-    thumbnailSrc: "/images/products/arc-lamp.svg",
+    thumbnailSrc: "/poster/arc-lamp-poster.webp",
   },
   {
     id: "desk-summit",
@@ -103,7 +103,7 @@ export const PRODUCTS: Product[] = [
     category: "Desk",
     priceCents: 24999,
     tags: ["work", "minimal"],
-    thumbnailSrc: "/images/products/summit-desk.svg",
+    thumbnailSrc: "/poster/summit-desk-poster.webp",
   },
   {
     id: "desk-drift",
@@ -116,7 +116,7 @@ export const PRODUCTS: Product[] = [
     category: "Desk",
     priceCents: 19999,
     tags: ["compact", "work"],
-    thumbnailSrc: "/images/products/drift-desk.svg",
+    thumbnailSrc: "/poster/drift-desk-poster.webp",
   },
   {
     id: "desk-atlas",
@@ -129,7 +129,7 @@ export const PRODUCTS: Product[] = [
     category: "Desk",
     priceCents: 29999,
     tags: ["premium", "work"],
-    thumbnailSrc: "/images/products/atlas-desk.svg",
+    thumbnailSrc: "/poster/atlas-desk-poster.webp",
   },
 ];
 

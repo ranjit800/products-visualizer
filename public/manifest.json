@@ -35,9 +35,9 @@
     ],
     "screenshots": [
         {
-            "src": "/images/products/aurora-chair.svg",
-            "sizes": "400x300",
-            "type": "image/svg+xml",
+            "src": "/poster/aurora-chair-poster.webp",
+            "sizes": "1920x945",
+            "type": "image/webp",
             "label": "Product catalog"
         }
     ],

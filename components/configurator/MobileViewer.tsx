@@ -29,7 +29,7 @@ export function MobileViewer({ product, formatPrice }: MobileViewerProps) {
   const viewerRef = React.useRef<HTMLElement | null>(null);
 
   const modelSrc = `/models/${product.slug}.glb`;
-  const posterSrc = `/images/products/${product.slug}.svg`;
+  const posterSrc = `/poster/${product.slug}-poster.webp`;
 
   React.useEffect(() => {
     setMounted(true);
