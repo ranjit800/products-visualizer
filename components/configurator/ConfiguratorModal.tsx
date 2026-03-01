@@ -44,7 +44,7 @@ export function ConfiguratorModal({
     ? [...BASE_LIGHTING, ...EXTRA_LIGHTING]
     : BASE_LIGHTING;
 
-  const [activeColor, setActiveColor] = React.useState("#1e293b");
+  const [activeColor, setActiveColor] = React.useState<string | null>(null);
   const [exposure, setExposure] = React.useState(1.0);
   const [isSaving, setIsSaving] = React.useState(false);
   const [saveMsg, setSaveMsg] = React.useState("");
@@ -90,7 +90,9 @@ export function ConfiguratorModal({
       const model = viewer.model;
       if (!model) return;
       model.materials.forEach((material: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
-        material.pbrMetallicRoughness.setBaseColorFactor(activeColor);
+        if (activeColor) {
+          material.pbrMetallicRoughness.setBaseColorFactor(activeColor);
+        }
       });
     };
 
@@ -220,7 +222,7 @@ export function ConfiguratorModal({
                 />
               ))}
             </div>
-            <p style={{ color: "rgba(255,255,255,0.25)", fontSize: 10, fontFamily: "monospace", marginTop: 8 }}>{activeColor}</p>
+            <p style={{ color: "rgba(255,255,255,0.25)", fontSize: 10, fontFamily: "monospace", marginTop: 8 }}>{activeColor ?? "Default"}</p>
           </div>
 
           <div style={{ height: 1, backgroundColor: "rgba(255,255,255,0.06)" }} />

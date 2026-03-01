@@ -32,7 +32,7 @@ export function DesktopViewer({ product, formatPrice }: DesktopViewerProps) {
   const viewerRef = React.useRef<HTMLElement | null>(null);
 
   // ── Configuration State ──
-  const [activeColor, setActiveColor] = React.useState("#1e293b");
+  const [activeColor, setActiveColor] = React.useState<string | null>(null);
   const [exposure, setExposure] = React.useState(1.0);
   const [isSaving, setIsSaving] = React.useState(false);
   const [saveMsg, setSaveMsg] = React.useState("");
@@ -88,7 +88,9 @@ export function DesktopViewer({ product, formatPrice }: DesktopViewerProps) {
       // This is a common pattern for "visualizers" where the primary color 
       // is applied to the main thematic parts of the model.
       model.materials.forEach((material: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
-        material.pbrMetallicRoughness.setBaseColorFactor(activeColor);
+        if (activeColor) {
+          material.pbrMetallicRoughness.setBaseColorFactor(activeColor);
+        }
       });
     };
 
@@ -278,9 +280,14 @@ export function DesktopViewer({ product, formatPrice }: DesktopViewerProps) {
 
         {/* Material Color */}
         <section aria-labelledby="material-color-heading">
-          <h2 id="material-color-heading" style={{ color: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12 }}>
-            Material Color
-          </h2>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+            <h2 id="material-color-heading" style={{ color: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", margin: 0 }}>
+              Material Color
+            </h2>
+            <span style={{ fontSize: 10, fontFamily: "monospace", color: "rgba(255,255,255,0.3)" }}>
+              {activeColor ?? "Default"}
+            </span>
+          </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 10 }}>
             {COLORS.map((c) => (
               <button
