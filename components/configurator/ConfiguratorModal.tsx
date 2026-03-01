@@ -26,6 +26,7 @@ export function ConfiguratorModal({
 }) {
   const [ready, setReady] = React.useState(false);
   const { flags } = useUIStore();
+  const viewerRef = React.useRef<HTMLElement | null>(null);
 
   React.useEffect(() => {
     loadModelViewer().then(() => setReady(true)).catch(() => setReady(true));
@@ -78,6 +79,28 @@ export function ConfiguratorModal({
       .catch(() => null);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  React.useEffect(() => {
+    if (!ready) return;
+    const viewer = viewerRef.current;
+    if (!viewer) return;
+
+    const applyColor = () => {
+      // @ts-expect-error custom element
+      const model = viewer.model;
+      if (!model) return;
+      model.materials.forEach((material: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
+        material.pbrMetallicRoughness.setBaseColorFactor(activeColor);
+      });
+    };
+
+    // @ts-expect-error custom element
+    if (viewer.loaded) {
+      applyColor();
+    }
+    viewer.addEventListener("load", applyColor);
+    return () => viewer.removeEventListener("load", applyColor);
+  }, [activeColor, ready]);
 
   const toggleAccessory = (id: string) =>
     setAccessories((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -176,9 +199,9 @@ export function ConfiguratorModal({
         }}>
           {/* Colors */}
           <div style={{ padding: 16 }}>
-            <p style={{ color: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.14em", marginBottom: 10 }}>
+            <h2 id="modal-material-color" style={{ color: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.14em", marginBottom: 10, margin: 0 }}>
               Material Color
-            </p>
+            </h2>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 36px)", gap: 8 }}>
               {COLORS.map((c) => (
                 <button
@@ -204,9 +227,9 @@ export function ConfiguratorModal({
 
           {/* Lighting */}
           <div style={{ padding: 16 }}>
-            <p style={{ color: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.14em", marginBottom: 10 }}>
+            <h2 id="modal-lighting" style={{ color: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.14em", marginBottom: 10, margin: 0 }}>
               Lighting
-            </p>
+            </h2>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6 }}>
               {LIGHTING.map((l, i) => {
                 const isActive = activeLightingIdx === i;
@@ -235,9 +258,9 @@ export function ConfiguratorModal({
 
           {/* Exposure */}
           <div style={{ padding: 16 }}>
-            <p style={{ color: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.14em", marginBottom: 10 }}>
+            <h2 id="modal-exposure" style={{ color: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.14em", marginBottom: 10, margin: 0 }}>
               Exposure
-            </p>
+            </h2>
             <input
               type="range" min={0.4} max={2.0} step={0.05} value={exposure}
               onChange={(e) => setExposure(Number(e.target.value))}
@@ -251,9 +274,9 @@ export function ConfiguratorModal({
 
           {/* Accessories */}
           <div style={{ padding: 16 }}>
-            <p style={{ color: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.14em", marginBottom: 10 }}>
+            <h2 id="modal-accessories" style={{ color: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.14em", marginBottom: 10, margin: 0 }}>
               Accessories
-            </p>
+            </h2>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {ACCESSORIES_DEF.map((a) => (
                 <button
@@ -301,6 +324,7 @@ export function ConfiguratorModal({
           {ready ? (
             /* @ts-expect-error custom element */
             <model-viewer
+              ref={viewerRef}
               src={modelSrc}
               alt={`3D model of ${productName}`}
               poster={`/images/products/${productSlug}.svg`}

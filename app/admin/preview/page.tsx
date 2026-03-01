@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 
-import { Toggle, Badge, Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui";
+import { Toggle, Badge, Card, CardContent } from "@/components/ui";
 import { useUIStore, type Theme, type FeatureFlags } from "@/store/uiStore";
 import { cn } from "@/lib/cn";
 

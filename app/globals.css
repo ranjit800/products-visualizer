@@ -62,3 +62,14 @@ model-viewer {
   min-height: 300px;
   --poster-color: transparent;
 }
+
+/* ── Accessibility: Global Focus Styles ── */
+:focus-visible {
+  outline: 2px solid #7c3aed !important;
+  outline-offset: 2px !important;
+}
+
+html.high-contrast :focus-visible {
+  outline: 3px solid #ffff00 !important;
+  outline-offset: 3px !important;
+}

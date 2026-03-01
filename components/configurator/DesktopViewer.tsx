@@ -10,6 +10,7 @@
 
 import * as React from "react";
 import type { Product } from "@/lib/products";
+import Link from "next/link";
 import { useUIStore } from "@/store/uiStore";
 import {
   loadModelViewer,
@@ -28,8 +29,6 @@ type DesktopViewerProps = {
 export function DesktopViewer({ product, formatPrice }: DesktopViewerProps) {
   const { flags } = useUIStore();
   const [ready, setReady] = React.useState(false);
-  const [mounted, setMounted] = React.useState(false);
-  const [showARFailed, setShowARFailed] = React.useState(false);
   const viewerRef = React.useRef<HTMLElement | null>(null);
 
   // ── Configuration State ──
@@ -51,7 +50,6 @@ export function DesktopViewer({ product, formatPrice }: DesktopViewerProps) {
     : BASE_LIGHTING;
 
   React.useEffect(() => {
-    setMounted(true);
     loadModelViewer().then(() => setReady(true)).catch(() => setReady(true));
 
     // ── Restore from configId in URL on mount ──
@@ -74,9 +72,36 @@ export function DesktopViewer({ product, formatPrice }: DesktopViewerProps) {
         setTimeout(() => setRestoredMsg(""), 3000);
       })
       .catch(() => null);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  React.useEffect(() => {
+    if (!ready) return;
+    const viewer = viewerRef.current;
+    if (!viewer) return;
+
+    const applyColor = () => {
+      // @ts-expect-error custom element
+      const model = viewer.model;
+      if (!model) return;
+
+      // Apply the selected color to all materials
+      // This is a common pattern for "visualizers" where the primary color 
+      // is applied to the main thematic parts of the model.
+      model.materials.forEach((material: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
+        material.pbrMetallicRoughness.setBaseColorFactor(activeColor);
+      });
+    };
+
+    // If model is already loaded, apply immediately
+    // @ts-expect-error custom element
+    if (viewer.loaded) {
+      applyColor();
+    }
+
+    // Also listen for load event just in case
+    viewer.addEventListener("load", applyColor);
+    return () => viewer.removeEventListener("load", applyColor);
+  }, [activeColor, ready]);
 
   const toggleAccessory = (id: string) =>
     setAccessories((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -137,8 +162,8 @@ export function DesktopViewer({ product, formatPrice }: DesktopViewerProps) {
             exposure={exposure}
             loading="eager"
             reveal="auto"
-            onArStatus={(e: CustomEvent) => {
-              if (e.detail?.status === "failed") setShowARFailed(true);
+            onArStatus={() => {
+              // AR not supported on desktop usually, but we keep the handler empty if unused
             }}
             style={{ width: "100%", height: "100%", display: "block", background: "transparent" }}
             suppressHydrationWarning
@@ -163,7 +188,7 @@ export function DesktopViewer({ product, formatPrice }: DesktopViewerProps) {
 
         {/* Top-left: back button */}
         <div style={{ position: "absolute", top: 16, left: 16, zIndex: 20 }}>
-          <a
+          <Link
             href="/products"
             style={{
               display: "flex", alignItems: "center", justifyContent: "center",
@@ -175,7 +200,7 @@ export function DesktopViewer({ product, formatPrice }: DesktopViewerProps) {
             }}
           >
             ←
-          </a>
+          </Link>
         </div>
       </div>
 
@@ -252,15 +277,16 @@ export function DesktopViewer({ product, formatPrice }: DesktopViewerProps) {
         {/* ── Configuration Controls ── */}
 
         {/* Material Color */}
-        <section>
-          <header style={{ color: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12 }}>
+        <section aria-labelledby="material-color-heading">
+          <h2 id="material-color-heading" style={{ color: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12 }}>
             Material Color
-          </header>
+          </h2>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 10 }}>
             {COLORS.map((c) => (
               <button
                 key={c.hex}
                 onClick={() => setActiveColor(c.hex)}
+                aria-label={`Select ${c.label} color`}
                 style={{
                   aspectRatio: "1/1", borderRadius: "50%", backgroundColor: c.hex,
                   border: "none", cursor: "pointer",
@@ -276,10 +302,10 @@ export function DesktopViewer({ product, formatPrice }: DesktopViewerProps) {
         </section>
 
         {/* Lighting */}
-        <section>
-          <header style={{ color: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12 }}>
+        <section aria-labelledby="lighting-setup-heading">
+          <h2 id="lighting-setup-heading" style={{ color: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12 }}>
             Lighting Setup
-          </header>
+          </h2>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
             {LIGHTING.map((l, i) => {
               const isActive = activeLightingIdx === i;
@@ -304,11 +330,11 @@ export function DesktopViewer({ product, formatPrice }: DesktopViewerProps) {
         </section>
 
         {/* Exposure */}
-        <section>
+        <section aria-labelledby="exposure-heading">
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-            <header style={{ color: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em" }}>
+            <h2 id="exposure-heading" style={{ color: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", margin: 0 }}>
               Exposure
-            </header>
+            </h2>
             <span style={{ fontSize: 10, fontFamily: "monospace", color: "rgba(255,255,255,0.3)" }}>
               {exposure.toFixed(2)}
             </span>
@@ -321,10 +347,10 @@ export function DesktopViewer({ product, formatPrice }: DesktopViewerProps) {
         </section>
 
         {/* Accessories */}
-        <section>
-          <header style={{ color: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12 }}>
+        <section aria-labelledby="components-heading">
+          <h2 id="components-heading" style={{ color: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12 }}>
             Components
-          </header>
+          </h2>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {ACCESSORIES_DEF.map((a) => (
               <button

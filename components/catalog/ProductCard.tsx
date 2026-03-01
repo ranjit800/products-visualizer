@@ -64,12 +64,12 @@ export function ProductCard({ product }: { product: Product }) {
         </div>
 
         <div className="flex flex-col w-full justify-center gap-1">
-          <h1 className="md:text-lg text-sm font-semibold truncate text-slate-900 dark:text-white">
+          <h2 className="md:text-lg text-sm font-semibold truncate text-slate-900 dark:text-white">
             {product.title[locale]}
-          </h1>
-          <h2 className="text-sm font-medium text-slate-500 dark:text-slate-400">
-            {formatPrice(product.priceCents, locale)}
           </h2>
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+            {formatPrice(product.priceCents, locale)}
+          </p>
         </div>
       </div>
     </Link>

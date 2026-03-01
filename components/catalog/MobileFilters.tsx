@@ -11,6 +11,7 @@ export function MobileFilters() {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMounted(true);
   }, []);
 
@@ -29,8 +30,11 @@ export function MobileFilters() {
 
   useEffect(() => {
     if (isFilterOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setTempTag(currentTag);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setTempMinPrice(currentMinPrice);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setTempMaxPrice(currentMaxPrice);
       document.body.style.overflow = "hidden";
     } else {

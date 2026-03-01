@@ -1,5 +1,6 @@
 "use client";
 import * as React from "react";
+import Link from "next/link";
 import type { Product } from "@/lib/products";
 import { useUIStore } from "@/store/uiStore";
 import { loadModelViewer, SHEET_HEIGHTS, type SheetState } from "./shared";
@@ -158,7 +159,7 @@ export function MobileViewer({ product, formatPrice }: MobileViewerProps) {
         padding: "16px 16px",
         background: "linear-gradient(to bottom, rgba(0,0,0,0.35) 0%, transparent 100%)",
       }}>
-        <a
+        <Link
           href="/products"
           style={{
             display: "flex", alignItems: "center", justifyContent: "center",
@@ -171,7 +172,7 @@ export function MobileViewer({ product, formatPrice }: MobileViewerProps) {
           aria-label="Back to catalog"
         >
           ←
-        </a>
+        </Link>
 
         <div style={{ display: "flex", gap: 8 }}>
           {/* AR button — gated on enableAR feature flag */}
