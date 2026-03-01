@@ -46,7 +46,15 @@ export function MobileViewer({ product, formatPrice }: MobileViewerProps) {
     if (!viewer) return;
     const onLoad = () => {
       // @ts-expect-error custom element
-      setCanAR(!!viewer.canActivateAR);
+      const viewerCanAR = !!viewer.canActivateAR;
+      // Stricter check: only show if the browser claims AR support AND it's a mobile device
+      const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      const isTouch = typeof window !== "undefined" && 
+        ("ontouchstart" in window || navigator.maxTouchPoints > 0);
+      setCanAR(viewerCanAR && (isMobileDevice || isTouch));
+      // NOTE: We kept isTouch as a fallback but prioritized isMobileDevice. 
+      // Actually, for the user's request, let's be even stricter.
+      setCanAR(viewerCanAR && isMobileDevice);
     };
     viewer.addEventListener("load", onLoad);
     return () => viewer.removeEventListener("load", onLoad);

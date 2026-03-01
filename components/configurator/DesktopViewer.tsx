@@ -30,7 +30,6 @@ export function DesktopViewer({ product, formatPrice }: DesktopViewerProps) {
   const [ready, setReady] = React.useState(false);
   const [mounted, setMounted] = React.useState(false);
   const [showARFailed, setShowARFailed] = React.useState(false);
-  const [canAR, setCanAR] = React.useState(false);
   const viewerRef = React.useRef<HTMLElement | null>(null);
 
   // ── Configuration State ──
@@ -78,17 +77,6 @@ export function DesktopViewer({ product, formatPrice }: DesktopViewerProps) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  React.useEffect(() => {
-    if (!ready) return;
-    const viewer = viewerRef.current;
-    if (!viewer) return;
-    const onLoad = () => {
-      // @ts-expect-error custom element
-      setCanAR(!!viewer.canActivateAR);
-    };
-    viewer.addEventListener("load", onLoad);
-    return () => viewer.removeEventListener("load", onLoad);
-  }, [ready]);
 
   const toggleAccessory = (id: string) =>
     setAccessories((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -143,10 +131,6 @@ export function DesktopViewer({ product, formatPrice }: DesktopViewerProps) {
             poster={posterSrc}
             camera-controls
             auto-rotate
-            ar
-            ar-modes="webxr scene-viewer quick-look"
-            ar-scale="auto"
-            ios-src={`/models/${product.slug}.usdz`}
             shadow-intensity="1"
             tone-mapping="commerce"
             environment-image={LIGHTING[activeLightingIdx]?.value}

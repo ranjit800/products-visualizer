@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import { Suspense } from "react";
 import dynamic from "next/dynamic";
 import type { Product } from "@/lib/products";
@@ -35,6 +36,17 @@ type Props = {
 };
 
 export function ProductViewClient({ product, formatPrice }: Props) {
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      const data = {
+        slug: product.slug,
+        title: product.title.en,
+        timestamp: Date.now(),
+      };
+      localStorage.setItem("visualizer_last_viewed", JSON.stringify(data));
+    }
+  }, [product.slug, product.title.en]);
+
   return (
     <Suspense fallback={null}>
       <ModelViewer3D product={product} formatPrice={formatPrice} />
