@@ -2,8 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-
-import { Toggle, Badge, Card, CardContent } from "@/components/ui";
+import { Toggle, Badge, Card, CardContent, Button, Input } from "@/components/ui";
 import { useUIStore, type Theme, type FeatureFlags } from "@/store/uiStore";
 import { cn } from "@/lib/cn";
 
@@ -38,6 +37,39 @@ const FLAG_DEFS: { key: keyof FeatureFlags; label: string; description: string; 
 
 export default function AdminPreviewPage() {
   const { theme, flags, setTheme, setFlag, addToast } = useUIStore();
+  const [configs, setConfigs] = React.useState<any[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [searchQuery, setSearchQuery] = React.useState("");
+
+  React.useEffect(() => {
+    async function fetchConfigs() {
+      try {
+        const res = await fetch("/api/configurations");
+        const data = await res.json();
+        setConfigs(data.configs || []);
+      } catch (err) {
+        console.error("Failed to fetch configs:", err);
+        addToast({ message: "Failed to load shared links", type: "error" });
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchConfigs();
+  }, [addToast]);
+
+  const handleCopyLink = (id: string) => {
+    const url = `${window.location.origin}/share/${id}`;
+    navigator.clipboard.writeText(url);
+    addToast({ message: "Link copied to clipboard!", type: "success" });
+  };
+
+  const filteredConfigs = configs.filter((c) => {
+    const q = searchQuery.toLowerCase();
+    return (
+      c.productSlug.toLowerCase().includes(q) ||
+      c.id.toLowerCase().includes(q)
+    );
+  });
 
   const handleThemeChange = (newTheme: Theme) => {
     setTheme(newTheme);
@@ -145,6 +177,77 @@ export default function AdminPreviewPage() {
             </Card>
           ))}
         </div>
+      </section>
+
+      {/* ── Shared Links Dashboard ── */}
+      <section aria-labelledby="shared-links-heading" className="mt-8 mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <h2 id="shared-links-heading" className="text-lg font-semibold text-slate-800 dark:text-slate-200">
+            Shared Configurations
+          </h2>
+          <Badge variant="info">{filteredConfigs.length} results</Badge>
+        </div>
+
+        <div className="mb-4">
+          <Input
+            placeholder="Search by product name or ID..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="h-9"
+            aria-label="Search shared links"
+          />
+        </div>
+
+        {isLoading ? (
+          <div className="flex items-center justify-center p-8 rounded-xl border border-dashed border-slate-300 dark:border-slate-700">
+            <div className="h-5 w-5 animate-spin rounded-full border-2 border-slate-400 border-t-transparent" />
+          </div>
+        ) : filteredConfigs.length === 0 ? (
+          <div className="text-center p-8 rounded-xl border border-dashed border-slate-300 dark:border-slate-700">
+            <p className="text-sm text-slate-500">
+              {searchQuery ? "No matches found." : "No shared links found yet."}
+            </p>
+          </div>
+        ) : (
+          <div className="grid gap-3 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+            {[...filteredConfigs].reverse().map((config) => (
+              <Card key={config.id}>
+                <CardContent className="flex items-center justify-between gap-4 py-4">
+                  <div className="flex flex-col gap-1 overflow-hidden">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-semibold text-slate-800 dark:text-slate-200 truncate">
+                        {config.productSlug}
+                      </span>
+                      <code className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500">
+                        {config.id}
+                      </code>
+                    </div>
+                    <p className="text-[10px] text-slate-400">
+                      {new Date(config.createdAt).toLocaleString()}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="h-8 px-3 text-xs"
+                      onClick={() => handleCopyLink(config.id)}
+                    >
+                      Copy
+                    </Button>
+                    <Link
+                      href={`/share/${config.id}`}
+                      target="_blank"
+                      className="inline-flex h-8 items-center justify-center rounded-md bg-slate-900 px-3 text-xs font-medium text-white transition hover:bg-slate-700 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
+                    >
+                      View
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* ── Current state summary ── */}
