@@ -35,7 +35,12 @@ export function MobileViewer({ product, formatPrice, configId: propConfigId }: M
   React.useEffect(() => {
     setMounted(true);
     loadModelViewer().then(() => setReady(true)).catch(() => setReady(true));
-  }, []);
+    // Auto-open configurator if arriving from a share link
+    const configId = propConfigId || (typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("configId") : null);
+    if (configId) {
+      setShowConfigurator(true);
+    }
+  }, [propConfigId]);
 
   // Detect AR after model loads
   React.useEffect(() => {
