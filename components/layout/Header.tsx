@@ -23,9 +23,6 @@ export function Header() {
           <Link href="/products" className="hover:text-slate-900 dark:hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-slate-900 dark:focus-visible:outline-white underline-offset-4 hover:underline">
             {t("navProducts")}
           </Link>
-          <Link href="/admin/preview" className="hover:text-slate-900 dark:hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-slate-900 dark:focus-visible:outline-white underline-offset-4 hover:underline">
-            {t("navAdmin")}
-          </Link>
 
           <Button
             variant="ghost"

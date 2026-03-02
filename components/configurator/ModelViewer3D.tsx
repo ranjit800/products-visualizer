@@ -23,9 +23,10 @@ const DesktopViewer = React.lazy(() =>
 type ModelViewer3DProps = {
   product: Product & { title: { en: string; hi: string } };
   formatPrice: string;
+  configId?: string;
 };
 
-export function ModelViewer3D({ product, formatPrice }: ModelViewer3DProps) {
+export function ModelViewer3D({ product, formatPrice, configId }: ModelViewer3DProps) {
   const [isDesktop, setIsDesktop] = React.useState(false);
   const [hydrated, setHydrated] = React.useState(false);
 
@@ -48,7 +49,7 @@ export function ModelViewer3D({ product, formatPrice }: ModelViewer3DProps) {
   }
 
   if (!isDesktop) {
-    return <MobileViewer product={product} formatPrice={formatPrice} />;
+    return <MobileViewer product={product} formatPrice={formatPrice} configId={configId} />;
   }
 
   return (
@@ -57,7 +58,7 @@ export function ModelViewer3D({ product, formatPrice }: ModelViewer3DProps) {
         <p style={{ color: "#64748b", fontSize: 14 }}>Loading Desktop Experience...</p>
       </div>
     }>
-      <DesktopViewer product={product} formatPrice={formatPrice} />
+      <DesktopViewer product={product} formatPrice={formatPrice} configId={configId} />
     </React.Suspense>
   );
 }

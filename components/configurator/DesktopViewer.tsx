@@ -24,9 +24,10 @@ import { PresenceBadge } from "./PresenceBadge";
 type DesktopViewerProps = {
   product: Product & { title: { en: string; hi: string } };
   formatPrice: string;
+  configId?: string;
 };
 
-export function DesktopViewer({ product, formatPrice }: DesktopViewerProps) {
+export function DesktopViewer({ product, formatPrice, configId: propConfigId }: DesktopViewerProps) {
   const { flags } = useUIStore();
   const [ready, setReady] = React.useState(false);
   const viewerRef = React.useRef<HTMLElement | null>(null);
@@ -52,9 +53,8 @@ export function DesktopViewer({ product, formatPrice }: DesktopViewerProps) {
   React.useEffect(() => {
     loadModelViewer().then(() => setReady(true)).catch(() => setReady(true));
 
-    // ── Restore from configId in URL on mount ──
-    const params = new URLSearchParams(window.location.search);
-    const configId = params.get("configId");
+    // ── Restore from configId on mount ──
+    const configId = propConfigId || new URLSearchParams(window.location.search).get("configId");
     if (!configId) return;
     fetch(`/api/configurations/${configId}`)
       .then((r) => (r.ok ? r.json() : null))

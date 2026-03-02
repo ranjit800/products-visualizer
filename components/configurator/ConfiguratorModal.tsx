@@ -18,11 +18,13 @@ export function ConfiguratorModal({
   productName,
   modelSrc,
   onClose,
+  configId: propConfigId,
 }: {
   productSlug: string;
   productName: string;
   modelSrc: string;
   onClose: () => void;
+  configId?: string;
 }) {
   const [ready, setReady] = React.useState(false);
   const { flags } = useUIStore();
@@ -56,10 +58,9 @@ export function ConfiguratorModal({
     cushion: false, armrest: false, lampshade: false, base: false,
   });
 
-  // ── Restore from configId in URL on mount ──
+  // ── Restore from configId on mount ──
   React.useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const configId = params.get("configId");
+    const configId = propConfigId || (typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("configId") : null);
     if (!configId) return;
     fetch(`/api/configurations/${configId}`)
       .then((r) => (r.ok ? r.json() : null))
@@ -69,7 +70,7 @@ export function ConfiguratorModal({
         const presetToIdx: Record<string, number> = { studio: 0, daylight: 1, warm: 2 };
         const idx = presetToIdx[config.lightingPreset ?? "studio"] ?? 0;
         setActiveLightingIdx(idx);
-        setExposure(typeof config.exposure === "number" ? config.exposure : LIGHTING[idx].exposure);
+        setExposure(typeof config.exposure === "number" ? config.exposure : (LIGHTING[idx]?.exposure ?? 1.0));
         if (config.components && typeof config.components === "object") {
           setAccessories((prev) => ({ ...prev, ...(config.components as Record<string, boolean>) }));
         }
@@ -77,8 +78,7 @@ export function ConfiguratorModal({
         setTimeout(() => setRestoredMsg(""), 3000);
       })
       .catch(() => null);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [propConfigId, LIGHTING]);
 
   React.useEffect(() => {
     if (!ready) return;
@@ -131,6 +131,17 @@ export function ConfiguratorModal({
   const toggleAccessory = (id: string) =>
     setAccessories((prev) => ({ ...prev, [id]: !prev[id] }));
 
+  const handleReset = () => {
+    setActiveColor(null);
+    setExposure(1.0);
+    setActiveLightingIdx(0);
+    setAccessories({
+      cushion: false, armrest: false, lampshade: false, base: false,
+    });
+    setRestoredMsg("✓ Reset to default");
+    setTimeout(() => setRestoredMsg(""), 3000);
+  };
+
   const handleSave = async () => {
     setIsSaving(true);
     try {
@@ -149,7 +160,8 @@ export function ConfiguratorModal({
       });
       if (!res.ok) throw new Error();
       const { id } = await res.json();
-      await navigator.clipboard.writeText(`${location.origin}/share/${id}`).catch(() => null);
+      const shareUrl = `${window.location.origin}/products/${productSlug}?configId=${id}`;
+      await navigator.clipboard.writeText(shareUrl).catch(() => null);
       setSaveMsg("✓ Link copied!");
       setTimeout(() => setSaveMsg(""), 3000);
     } catch {
@@ -189,6 +201,21 @@ export function ConfiguratorModal({
             <span style={{ color: "#10b981", fontSize: 12, fontWeight: 600 }}>{saveMsg}</span>
           )}
           <button
+            onClick={handleReset}
+            title="Reset to default"
+            style={{
+              display: "flex", alignItems: "center", justifyContent: "center",
+              width: 32, height: 32, borderRadius: 8,
+              backgroundColor: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.5)",
+              border: "none", cursor: "pointer", fontSize: 14, transition: "all 0.15s",
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+              <path d="M3 3v5h5"/>
+            </svg>
+          </button>
+          <button
             onClick={handleSave}
             disabled={isSaving}
             style={{
@@ -198,7 +225,14 @@ export function ConfiguratorModal({
               cursor: "pointer", opacity: isSaving ? 0.6 : 1, transition: "all 0.15s",
             }}
           >
-            💾 {isSaving ? "Saving…" : "Save & Share"}
+            {isSaving ? "Saving…" : (
+              <>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="m5 12 5 5L20 7"/>
+                </svg>
+                Copy Link
+              </>
+            )}
           </button>
           <button
             onClick={onClose}

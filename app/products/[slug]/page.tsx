@@ -39,10 +39,13 @@ export async function generateMetadata({
 /* ── Page ── */
 export default async function ProductDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams?: Promise<{ configId?: string }>;
 }) {
   const { slug } = await params;
+  const { configId } = (await searchParams) || {};
   const product = getProductBySlug(slug);
 
   if (!product) notFound();
@@ -52,6 +55,7 @@ export default async function ProductDetailPage({
       <ProductViewClient
         product={product}
         formatPrice={formatPriceCents(product.priceCents)}
+        configId={configId}
       />
     </main>
   );

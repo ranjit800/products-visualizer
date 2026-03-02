@@ -33,9 +33,10 @@ const ModelViewer3D = dynamic(
 type Props = {
   product: Product;
   formatPrice: string;
+  configId?: string;
 };
 
-export function ProductViewClient({ product, formatPrice }: Props) {
+export function ProductViewClient({ product, formatPrice, configId }: Props) {
   React.useEffect(() => {
     if (typeof window !== "undefined") {
       const data = {
@@ -49,7 +50,7 @@ export function ProductViewClient({ product, formatPrice }: Props) {
 
   return (
     <Suspense fallback={null}>
-      <ModelViewer3D product={product} formatPrice={formatPrice} />
+      <ModelViewer3D product={product} formatPrice={formatPrice} configId={configId} />
     </Suspense>
   );
 }

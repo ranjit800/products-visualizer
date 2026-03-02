@@ -14,24 +14,27 @@ type SharedModelViewerProps = {
   exposure?: number;
 };
 
-export function SharedModelViewer({ 
+export const SharedModelViewer = React.forwardRef<any, SharedModelViewerProps>(({ 
   modelSrc, 
   posterSrc, 
   iosSrc,
   materials, 
   components,
   exposure = 1.0 
-}: SharedModelViewerProps) {
+}, ref) => {
   const [ready, setReady] = React.useState(false);
-  const viewerRef = React.useRef<any>(null);
+  const internalRef = React.useRef<any>(null);
+
+  // Merge the forwarded ref and internal ref
+  React.useImperativeHandle(ref, () => internalRef.current);
 
   React.useEffect(() => {
     loadModelViewer().then(() => setReady(true)).catch(() => setReady(true));
   }, []);
 
   React.useEffect(() => {
-    if (!ready || !viewerRef.current) return;
-    const viewer = viewerRef.current;
+    if (!ready || !internalRef.current) return;
+    const viewer = internalRef.current;
 
     const applyMaterials = () => {
       const model = viewer.model;
@@ -45,25 +48,19 @@ export function SharedModelViewer({
       });
 
       // 2. Handle component (accessory) visibility
-      // If a material name contains the component ID (e.g. "cushion"), 
-      // toggle its transparency based on the component's state.
       if (components) {
         model.materials.forEach((material: any) => {
           const matName = material.name.toLowerCase();
           Object.entries(components).forEach(([id, visible]) => {
             if (matName.includes(id.toLowerCase())) {
               if (visible) {
-                // Restore visibility (Opaque)
                 material.setAlphaMode("OPAQUE");
-                // Restore primary color if it's the primary material, 
-                // otherwise keep its default or white.
                 if (materials?.primary) {
                    material.pbrMetallicRoughness.setBaseColorFactor(materials.primary);
                 } else {
                    material.pbrMetallicRoughness.setBaseColorFactor([1, 1, 1, 1]);
                 }
               } else {
-                // Hide (Transparent)
                 material.pbrMetallicRoughness.setBaseColorFactor([0, 0, 0, 0]);
                 material.setAlphaMode("BLEND");
               }
@@ -88,9 +85,9 @@ export function SharedModelViewer({
         </div>
       )}
       {React.createElement("model-viewer", {
-        ref: viewerRef,
+        ref: internalRef,
         src: modelSrc,
-        "ios-src": iosSrc, // Important for iPad/iPhone AR
+        // ios-src: iosSrc, // Removed to allow dynamic USDZ generation with custom colors
         poster: posterSrc,
         "auto-rotate": true,
         "camera-controls": true,
@@ -100,15 +97,16 @@ export function SharedModelViewer({
         exposure: exposure,
         ar: true,
         "ar-modes": "webxr scene-viewer quick-look",
+        "ar-placement": "floor",
         style: { width: "100%", height: "100%", "--poster-color": "transparent" }
       }, (
         <button
           slot="ar-button"
-          className="absolute bottom-4 right-4 flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-lg transition active:scale-95 dark:bg-slate-900 dark:text-white"
-        >
-          <span>🕶️ View in AR</span>
-        </button>
+          className="hidden" // Hide the default button as we will trigger it from the header
+        />
       ))}
     </div>
   );
-}
+});
+
+SharedModelViewer.displayName = "SharedModelViewer";

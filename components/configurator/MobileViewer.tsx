@@ -10,12 +10,13 @@ import { ConfiguratorModal } from "./ConfiguratorModal";
 type MobileViewerProps = {
   product: Product & { title: { en: string; hi: string } };
   formatPrice: string;
+  configId?: string;
 };
 
 // ── Mobile experience: full-screen 3D model + bottom info sheet ──────────────
 // The sheet can be dragged between collapsed / half / full states.
 // Tapping the handle also cycles through the states.
-export function MobileViewer({ product, formatPrice }: MobileViewerProps) {
+export function MobileViewer({ product, formatPrice, configId: propConfigId }: MobileViewerProps) {
   const { flags } = useUIStore();
   const [ready, setReady] = React.useState(false);
   const [showConfigurator, setShowConfigurator] = React.useState(false);
@@ -35,10 +36,11 @@ export function MobileViewer({ product, formatPrice }: MobileViewerProps) {
     setMounted(true);
     loadModelViewer().then(() => setReady(true)).catch(() => setReady(true));
     // Auto-open configurator if arriving from a share link
-    if (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("configId")) {
+    const configId = propConfigId || (typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("configId") : null);
+    if (configId) {
       setShowConfigurator(true);
     }
-  }, []);
+  }, [propConfigId]);
 
   // Detect AR after model loads
   React.useEffect(() => {
@@ -122,7 +124,8 @@ export function MobileViewer({ product, formatPrice }: MobileViewerProps) {
             ar
             ar-modes="webxr scene-viewer quick-look"
             ar-scale="auto"
-            ios-src={`/models/${product.slug}.usdz`}
+            ar-placement="floor"
+            // ios-src={`/models/${product.slug}.usdz`}
             shadow-intensity="1"
             tone-mapping="commerce"
             loading="eager"
