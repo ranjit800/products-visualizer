@@ -42,9 +42,11 @@ export function ConfiguratorModal({
     return () => { document.body.style.overflow = prev; window.removeEventListener("keydown", onKey); };
   }, [onClose]);
 
-  const LIGHTING = flags.enableAdvancedLighting
-    ? [...BASE_LIGHTING, ...EXTRA_LIGHTING]
-    : BASE_LIGHTING;
+  const LIGHTING = React.useMemo(() => {
+    return flags.enableAdvancedLighting
+      ? [...BASE_LIGHTING, ...EXTRA_LIGHTING]
+      : BASE_LIGHTING;
+  }, [flags.enableAdvancedLighting]);
 
   const [activeColor, setActiveColor] = React.useState<string | null>(null);
   const [exposure, setExposure] = React.useState(1.0);

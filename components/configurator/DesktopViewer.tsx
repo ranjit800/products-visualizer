@@ -46,9 +46,11 @@ export function DesktopViewer({ product, formatPrice, configId: propConfigId }: 
   const modelSrc = `/models/${product.slug}.glb`;
   const posterSrc = `/poster/${product.slug}-poster.webp`;
 
-  const LIGHTING = flags.enableAdvancedLighting
-    ? [...BASE_LIGHTING, ...EXTRA_LIGHTING]
-    : BASE_LIGHTING;
+  const LIGHTING = React.useMemo(() => {
+    return flags.enableAdvancedLighting
+      ? [...BASE_LIGHTING, ...EXTRA_LIGHTING]
+      : BASE_LIGHTING;
+  }, [flags.enableAdvancedLighting]);
 
   React.useEffect(() => {
     loadModelViewer().then(() => setReady(true)).catch(() => setReady(true));
@@ -72,7 +74,7 @@ export function DesktopViewer({ product, formatPrice, configId: propConfigId }: 
         setTimeout(() => setRestoredMsg(""), 3000);
       })
       .catch(() => null);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [propConfigId, LIGHTING]);
 
   React.useEffect(() => {
     if (!ready) return;
