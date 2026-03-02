@@ -104,8 +104,10 @@ export default async function SharePage({ params }: SharePageProps) {
           <div className="aspect-video w-full overflow-hidden rounded-lg border border-slate-100 dark:border-slate-800">
             <SharedModelViewer
               modelSrc={`/models/${product.slug}.glb`}
+              iosSrc={`/models/${product.slug}.usdz`}
               posterSrc={product.thumbnailSrc}
               materials={config.materials}
+              components={config.components}
               exposure={config.exposure}
             />
           </div>

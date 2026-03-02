@@ -79,31 +79,48 @@ export function DesktopViewer({ product, formatPrice }: DesktopViewerProps) {
     const viewer = viewerRef.current;
     if (!viewer) return;
 
-    const applyColor = () => {
+    const applyConfiguration = () => {
       // @ts-expect-error custom element
       const model = viewer.model;
       if (!model) return;
 
-      // Apply the selected color to all materials
-      // This is a common pattern for "visualizers" where the primary color 
-      // is applied to the main thematic parts of the model.
-      model.materials.forEach((material: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
+      // 1. Apply primary material color
+      model.materials.forEach((material: any) => {
         if (activeColor) {
           material.pbrMetallicRoughness.setBaseColorFactor(activeColor);
         }
       });
+
+      // 2. Handle accessory visibility
+      if (accessories) {
+        model.materials.forEach((material: any) => {
+          const matName = material.name.toLowerCase();
+          Object.entries(accessories).forEach(([id, visible]) => {
+            if (matName.includes(id.toLowerCase())) {
+              if (visible) {
+                material.setAlphaMode("OPAQUE");
+                if (activeColor) {
+                  material.pbrMetallicRoughness.setBaseColorFactor(activeColor);
+                } else {
+                  material.pbrMetallicRoughness.setBaseColorFactor([1, 1, 1, 1]);
+                }
+              } else {
+                material.pbrMetallicRoughness.setBaseColorFactor([0, 0, 0, 0]);
+                material.setAlphaMode("BLEND");
+              }
+            }
+          });
+        });
+      }
     };
 
-    // If model is already loaded, apply immediately
     // @ts-expect-error custom element
     if (viewer.loaded) {
-      applyColor();
+      applyConfiguration();
     }
-
-    // Also listen for load event just in case
-    viewer.addEventListener("load", applyColor);
-    return () => viewer.removeEventListener("load", applyColor);
-  }, [activeColor, ready]);
+    viewer.addEventListener("load", applyConfiguration);
+    return () => viewer.removeEventListener("load", applyConfiguration);
+  }, [activeColor, accessories, ready]);
 
   const toggleAccessory = (id: string) =>
     setAccessories((prev) => ({ ...prev, [id]: !prev[id] }));

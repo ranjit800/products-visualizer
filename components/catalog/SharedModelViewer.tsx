@@ -6,13 +6,22 @@ import { loadModelViewer } from "@/components/configurator/shared";
 type SharedModelViewerProps = {
   modelSrc: string;
   posterSrc: string;
+  iosSrc?: string;
   materials?: {
     primary?: string;
   };
+  components?: Record<string, boolean>;
   exposure?: number;
 };
 
-export function SharedModelViewer({ modelSrc, posterSrc, materials, exposure = 1.0 }: SharedModelViewerProps) {
+export function SharedModelViewer({ 
+  modelSrc, 
+  posterSrc, 
+  iosSrc,
+  materials, 
+  components,
+  exposure = 1.0 
+}: SharedModelViewerProps) {
   const [ready, setReady] = React.useState(false);
   const viewerRef = React.useRef<any>(null);
 
@@ -28,11 +37,40 @@ export function SharedModelViewer({ modelSrc, posterSrc, materials, exposure = 1
       const model = viewer.model;
       if (!model) return;
       
+      // 1. Apply primary material color
       model.materials.forEach((material: any) => {
         if (materials?.primary) {
           material.pbrMetallicRoughness.setBaseColorFactor(materials.primary);
         }
       });
+
+      // 2. Handle component (accessory) visibility
+      // If a material name contains the component ID (e.g. "cushion"), 
+      // toggle its transparency based on the component's state.
+      if (components) {
+        model.materials.forEach((material: any) => {
+          const matName = material.name.toLowerCase();
+          Object.entries(components).forEach(([id, visible]) => {
+            if (matName.includes(id.toLowerCase())) {
+              if (visible) {
+                // Restore visibility (Opaque)
+                material.setAlphaMode("OPAQUE");
+                // Restore primary color if it's the primary material, 
+                // otherwise keep its default or white.
+                if (materials?.primary) {
+                   material.pbrMetallicRoughness.setBaseColorFactor(materials.primary);
+                } else {
+                   material.pbrMetallicRoughness.setBaseColorFactor([1, 1, 1, 1]);
+                }
+              } else {
+                // Hide (Transparent)
+                material.pbrMetallicRoughness.setBaseColorFactor([0, 0, 0, 0]);
+                material.setAlphaMode("BLEND");
+              }
+            }
+          });
+        });
+      }
     };
 
     if (viewer.loaded) {
@@ -40,7 +78,7 @@ export function SharedModelViewer({ modelSrc, posterSrc, materials, exposure = 1
     }
     viewer.addEventListener("load", applyMaterials);
     return () => viewer.removeEventListener("load", applyMaterials);
-  }, [ready, materials]);
+  }, [ready, materials, components]);
 
   return (
     <div className="relative h-full w-full bg-slate-100 dark:bg-slate-800 rounded-lg overflow-hidden">
@@ -52,6 +90,7 @@ export function SharedModelViewer({ modelSrc, posterSrc, materials, exposure = 1
       {React.createElement("model-viewer", {
         ref: viewerRef,
         src: modelSrc,
+        "ios-src": iosSrc, // Important for iPad/iPhone AR
         poster: posterSrc,
         "auto-rotate": true,
         "camera-controls": true,
