@@ -19,9 +19,8 @@ html.dark {
   color-scheme: dark;
 }
 
-/* Nav / Header in dark */
-html.dark header,
-html.dark nav {
+/* Header in dark */
+html.dark header {
   background-color: rgba(9, 9, 11, 0.8) !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
 }
