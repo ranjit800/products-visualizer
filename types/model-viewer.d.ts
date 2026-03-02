@@ -10,6 +10,7 @@ declare global {
                     ar?: boolean;
                     "ar-modes"?: string;
                     "ar-scale"?: string;
+                    "ar-placement"?: string;
                     "camera-controls"?: boolean;
                     "camera-orbit"?: string;
                     "min-camera-orbit"?: string;
@@ -28,6 +29,8 @@ declare global {
                     poster?: string;
                     reveal?: "auto" | "interaction" | "manual";
                     "touch-action"?: string;
+                    "tone-mapping"?: string;
+                    "ios-src"?: string;
                 },
                 HTMLElement
             >;

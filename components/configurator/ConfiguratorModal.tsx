@@ -27,11 +27,21 @@ export function ConfiguratorModal({
   configId?: string;
 }) {
   const [ready, setReady] = React.useState(false);
+  const [mounted, setMounted] = React.useState(false);
+  const [isMobile, setIsMobile] = React.useState(false);
   const { flags } = useUIStore();
   const viewerRef = React.useRef<HTMLElement | null>(null);
 
   React.useEffect(() => {
+    setMounted(true);
     loadModelViewer().then(() => setReady(true)).catch(() => setReady(true));
+    
+    const checkMobile = () => {
+      setIsMobile(window.matchMedia("(max-width: 768px)").matches);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   React.useEffect(() => {
@@ -163,7 +173,32 @@ export function ConfiguratorModal({
       if (!res.ok) throw new Error();
       const { id } = await res.json();
       const shareUrl = `${window.location.origin}/share/${id}`;
-      await navigator.clipboard.writeText(shareUrl).catch(() => null);
+      
+      // Robust clipboard copy with fallback for non-secure contexts
+      try {
+        if (navigator.clipboard) {
+          await navigator.clipboard.writeText(shareUrl);
+        } else {
+          throw new Error("Clipboard API unavailable");
+        }
+      } catch (err) {
+        // Fallback for non-secure contexts (e.g. local IP testing)
+        const textArea = document.createElement("textarea");
+        textArea.value = shareUrl;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-9999px";
+        textArea.style.top = "0";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+          document.execCommand('copy');
+        } catch (copyErr) {
+          console.error('Fallback copy failed', copyErr);
+        }
+        document.body.removeChild(textArea);
+      }
+
       setSaveMsg("✓ Link copied!");
       setTimeout(() => setSaveMsg(""), 3000);
     } catch {
@@ -173,6 +208,8 @@ export function ConfiguratorModal({
       setIsSaving(false);
     }
   };
+
+  if (!mounted) return null;
 
   return ReactDOM.createPortal(
     <div
@@ -185,86 +222,122 @@ export function ConfiguratorModal({
       {/* ── Header ── */}
       <div style={{
         display: "flex", alignItems: "center", justifyContent: "space-between",
-        padding: "12px 16px", borderBottom: "1px solid rgba(255,255,255,0.08)",
+        padding: isMobile ? "8px 12px" : "12px 16px", 
+        borderBottom: "1px solid rgba(255,255,255,0.08)",
         backgroundColor: "#111820", flexShrink: 0,
+        height: isMobile ? 50 : 56,
       }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <div style={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: "#8b5cf6", animation: "pulse 2s infinite" }} />
-          <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.12em" }}>
-            3D Configurator
+        <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0, flex: 1 }}>
+          <div style={{ width: 6, height: 6, borderRadius: "50%", backgroundColor: "#8b5cf6", animation: "pulse 2s infinite", flexShrink: 0 }} />
+          {!isMobile && (
+            <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.12em", whiteSpace: "nowrap" }}>
+              3D Configurator
+            </span>
+          )}
+          <span style={{ 
+            color: "rgba(255,255,255,0.7)", 
+            fontSize: isMobile ? 12 : 13, 
+            fontWeight: 600,
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap"
+          }}>
+            {!isMobile && "— "} {productName}
           </span>
-          <span style={{ color: "rgba(255,255,255,0.7)", fontSize: 13, fontWeight: 600 }}>— {productName}</span>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          {restoredMsg && (
-            <span style={{ color: "#10b981", fontSize: 12, fontWeight: 600 }}>{restoredMsg}</span>
+
+        <div style={{ display: "flex", alignItems: "center", gap: isMobile ? 6 : 8, flexShrink: 0 }}>
+          {(restoredMsg || saveMsg) && (
+            <span style={{ 
+              color: "#10b981", 
+              fontSize: isMobile ? 10 : 12, 
+              fontWeight: 600,
+              display: isMobile && (restoredMsg || saveMsg).length > 20 ? "none" : "inline" 
+            }}>
+              {restoredMsg || saveMsg}
+            </span>
           )}
-          {saveMsg && (
-            <span style={{ color: "#10b981", fontSize: 12, fontWeight: 600 }}>{saveMsg}</span>
-          )}
-          <button
-            onClick={handleReset}
-            title="Reset to default"
-            style={{
-              display: "flex", alignItems: "center", justifyContent: "center",
-              width: 32, height: 32, borderRadius: 8,
-              backgroundColor: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.5)",
-              border: "none", cursor: "pointer", fontSize: 14, transition: "all 0.15s",
-            }}
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
-              <path d="M3 3v5h5"/>
-            </svg>
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={isSaving}
-            style={{
-              display: "flex", alignItems: "center", gap: 6,
-              padding: "6px 14px", borderRadius: 10, backgroundColor: "#7c3aed",
-              color: "white", fontSize: 12, fontWeight: 700, border: "none",
-              cursor: "pointer", opacity: isSaving ? 0.6 : 1, transition: "all 0.15s",
-            }}
-          >
-            {isSaving ? "Saving…" : (
-              <>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="m5 12 5 5L20 7"/>
-                </svg>
-                Copy Link
-              </>
-            )}
-          </button>
-          <button
-            onClick={onClose}
-            style={{
-              display: "flex", alignItems: "center", justifyContent: "center",
-              width: 32, height: 32, borderRadius: 8,
-              backgroundColor: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.5)",
-              border: "none", cursor: "pointer", fontSize: 16, transition: "all 0.15s",
-            }}
-            aria-label="Close configurator (Esc)"
-          >
-            ✕
-          </button>
+          
+          <div style={{ display: "flex", gap: isMobile ? 4 : 8 }}>
+            <button
+              onClick={handleReset}
+              title="Reset to default"
+              style={{
+                display: "flex", alignItems: "center", justifyContent: "center",
+                width: isMobile ? 28 : 32, height: isMobile ? 28 : 32, borderRadius: 8,
+                backgroundColor: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.5)",
+                border: "none", cursor: "pointer", fontSize: isMobile ? 12 : 14, transition: "all 0.15s",
+              }}
+            >
+              <svg width={isMobile ? "12" : "14"} height={isMobile ? "12" : "14"} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                <path d="M3 3v5h5"/>
+              </svg>
+            </button>
+
+            <button
+              onClick={handleSave}
+              disabled={isSaving}
+              style={{
+                display: "flex", alignItems: "center", gap: 6,
+                padding: isMobile ? "0 10px" : "6px 14px", 
+                height: isMobile ? 28 : 32,
+                borderRadius: 8, backgroundColor: "#7c3aed",
+                color: "white", fontSize: 11, fontWeight: 700, border: "none",
+                cursor: "pointer", opacity: isSaving ? 0.6 : 1, transition: "all 0.15s",
+              }}
+            >
+              {isSaving ? "Saving…" : (
+                <>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="m5 12 5 5L20 7"/>
+                  </svg>
+                  {isMobile ? "Link" : "Copy Link"}
+                </>
+              )}
+            </button>
+
+            <button
+              onClick={onClose}
+              style={{
+                display: "flex", alignItems: "center", justifyContent: "center",
+                width: isMobile ? 28 : 32, height: isMobile ? 28 : 32, borderRadius: 8,
+                backgroundColor: "rgba(255,255,255,0.1)", color: "white",
+                border: "none", cursor: "pointer", fontSize: 14, transition: "all 0.15s",
+              }}
+              aria-label="Close"
+            >
+              ✕
+            </button>
+          </div>
         </div>
       </div>
 
       {/* ── Main area: sidebar + 3D viewer ── */}
-      <div style={{ display: "flex", flex: 1, overflow: "hidden", minHeight: 0 }}>
+      <div style={{ 
+        display: "flex", 
+        flex: 1, 
+        flexDirection: isMobile ? "column" : "row",
+        overflow: "hidden", 
+        minHeight: 0 
+      }}>
         {/* Controls sidebar */}
         <div style={{
-          width: 240, flexShrink: 0, display: "flex", flexDirection: "column",
-          borderRight: "1px solid rgba(255,255,255,0.08)", backgroundColor: "#111820",
+          width: isMobile ? "100%" : 240, 
+          height: isMobile ? "45%" : "auto",
+          order: isMobile ? 2 : 1,
+          flexShrink: 0, display: "flex", flexDirection: "column",
+          borderRight: (isMobile || !ready) ? "none" : "1px solid rgba(255,255,255,0.08)", 
+          borderTop: isMobile ? "1px solid rgba(255,255,255,0.08)" : "none",
+          backgroundColor: "#111820",
           overflowY: "auto", overflowX: "hidden",
         }}>
           {/* Colors */}
-          <div style={{ padding: 16 }}>
+          <div style={{ padding: isMobile ? 12 : 16 }}>
             <h2 id="modal-material-color" style={{ color: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.14em", marginBottom: 10, margin: 0 }}>
               Material Color
             </h2>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 36px)", gap: 8 }}>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(auto-fill, minmax(32px, 1fr))" : "repeat(5, 36px)", gap: 8 }}>
               {COLORS.map((c) => (
                 <button
                   key={c.hex}
@@ -272,7 +345,7 @@ export function ConfiguratorModal({
                   aria-label={c.label}
                   title={c.label}
                   style={{
-                    width: 36, height: 36, borderRadius: "50%", backgroundColor: c.hex,
+                    width: isMobile ? 32 : 36, height: isMobile ? 32 : 36, borderRadius: "50%", backgroundColor: c.hex,
                     border: "none", cursor: "pointer",
                     outline: activeColor === c.hex ? "2px solid white" : "1px solid rgba(255,255,255,0.1)",
                     outlineOffset: activeColor === c.hex ? 2 : 0,
@@ -282,17 +355,16 @@ export function ConfiguratorModal({
                 />
               ))}
             </div>
-            <p style={{ color: "rgba(255,255,255,0.25)", fontSize: 10, fontFamily: "monospace", marginTop: 8 }}>{activeColor ?? "Default"}</p>
           </div>
 
-          <div style={{ height: 1, backgroundColor: "rgba(255,255,255,0.06)" }} />
+          <div style={{ height: 1, backgroundColor: "rgba(255,255,255,0.06)", flexShrink: 0 }} />
 
           {/* Lighting */}
-          <div style={{ padding: 16 }}>
+          <div style={{ padding: isMobile ? 12 : 16 }}>
             <h2 id="modal-lighting" style={{ color: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.14em", marginBottom: 10, margin: 0 }}>
               Lighting
             </h2>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6 }}>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(5, 1fr)" : "repeat(3, 1fr)", gap: 6 }}>
               {LIGHTING.map((l, i) => {
                 const isActive = activeLightingIdx === i;
                 return (
@@ -301,27 +373,27 @@ export function ConfiguratorModal({
                     onClick={() => { setActiveLightingIdx(i); setExposure(l.exposure); }}
                     style={{
                       display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
-                      padding: "10px 6px", borderRadius: 10, border: "none", cursor: "pointer",
+                      padding: "8px 4px", borderRadius: 10, border: "none", cursor: "pointer",
                       backgroundColor: isActive ? "rgba(139,92,246,0.2)" : "rgba(255,255,255,0.05)",
-                      color: "rgba(255,255,255,0.5)", fontSize: 10, fontWeight: 600,
+                      color: "rgba(255,255,255,0.5)", fontSize: 9, fontWeight: 600,
                       outline: isActive ? "1px solid rgba(139,92,246,0.5)" : "none",
                       transition: "all 0.15s",
                     }}
                   >
-                    <span style={{ fontSize: 18 }}>{l.icon}</span>
-                    {l.label}
+                    <span style={{ fontSize: isMobile ? 14 : 18 }}>{l.icon}</span>
+                    <span style={{ textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap", width: "100%", textAlign: "center" }}>{l.label}</span>
                   </button>
                 );
               })}
             </div>
           </div>
 
-          <div style={{ height: 1, backgroundColor: "rgba(255,255,255,0.06)" }} />
+          <div style={{ height: 1, backgroundColor: "rgba(255,255,255,0.06)", flexShrink: 0 }} />
 
           {/* Exposure */}
-          <div style={{ padding: 16 }}>
+          <div style={{ padding: isMobile ? 12 : 16 }}>
             <h2 id="modal-exposure" style={{ color: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.14em", marginBottom: 10, margin: 0 }}>
-              Exposure
+              Exposure ({exposure.toFixed(2)})
             </h2>
             <input
               type="range" min={0.4} max={2.0} step={0.05} value={exposure}
@@ -329,17 +401,16 @@ export function ConfiguratorModal({
               style={{ width: "100%", accentColor: "#7c3aed" }}
               aria-label="Exposure"
             />
-            <p style={{ color: "rgba(255,255,255,0.25)", fontSize: 10, fontFamily: "monospace", marginTop: 4 }}>{exposure.toFixed(2)}</p>
           </div>
 
-          <div style={{ height: 1, backgroundColor: "rgba(255,255,255,0.06)" }} />
+          <div style={{ height: 1, backgroundColor: "rgba(255,255,255,0.06)", flexShrink: 0 }} />
 
           {/* Accessories */}
-          <div style={{ padding: 16 }}>
+          <div style={{ padding: isMobile ? 12 : 16 }}>
             <h2 id="modal-accessories" style={{ color: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.14em", marginBottom: 10, margin: 0 }}>
               Accessories
             </h2>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "1fr", gap: 8 }}>
               {ACCESSORIES_DEF.map((a) => (
                 <button
                   key={a.id}
@@ -349,65 +420,75 @@ export function ConfiguratorModal({
                     padding: "8px 10px", borderRadius: 8, border: "none", cursor: "pointer",
                     backgroundColor: accessories[a.id] ? "rgba(139,92,246,0.2)" : "rgba(255,255,255,0.05)",
                     outline: accessories[a.id] ? "1px solid rgba(139,92,246,0.5)" : "none",
-                    color: "rgba(255,255,255,0.7)", fontSize: 12, fontWeight: 600,
+                    color: "rgba(255,255,255,0.7)", fontSize: 11, fontWeight: 600,
                     transition: "all 0.15s", textAlign: "left",
                   }}
                 >
-                  <span style={{ fontSize: 16 }}>{a.icon}</span>
+                  <span style={{ fontSize: 14 }}>{a.icon}</span>
                   <span style={{ flex: 1 }}>{a.label}</span>
-                  <span style={{
-                    fontSize: 10, padding: "2px 6px", borderRadius: 4,
-                    backgroundColor: accessories[a.id] ? "#7c3aed" : "rgba(255,255,255,0.1)",
-                    color: accessories[a.id] ? "white" : "rgba(255,255,255,0.35)",
-                    fontWeight: 700,
-                  }}>
-                    {accessories[a.id] ? "ON" : "OFF"}
-                  </span>
+                  <div style={{ width: 6, height: 6, borderRadius: "50%", backgroundColor: accessories[a.id] ? "#7c3aed" : "rgba(255,255,255,0.1)" }} />
                 </button>
               ))}
             </div>
           </div>
-
-          <div style={{ height: 1, backgroundColor: "rgba(255,255,255,0.06)" }} />
-
-          {/* Tips */}
-          <div style={{ padding: 16 }}>
-            <p style={{ color: "rgba(255,255,255,0.2)", fontSize: 10, lineHeight: 1.6 }}>
-              🖱 Drag to orbit<br />
-              🖲 Scroll to zoom<br />
-              📱 Pinch on mobile<br />
-              ⌨ Esc to close
-            </p>
+          
+          <div style={{ padding: "8px 16px", color: "rgba(255,255,255,0.15)", fontSize: 9 }}>
+            {isMobile ? "Pinch to zoom · 1-finger to orbit" : "Drag to orbit · Scroll to zoom"}
           </div>
         </div>
 
         {/* ── 3D viewer ── */}
-        <div style={{ flex: 1, position: "relative", minWidth: 0, overflow: "hidden" }}>
+        <div style={{ 
+          flex: 1, 
+          position: "relative", 
+          minWidth: 0, 
+          height: isMobile ? "55%" : "100%",
+          order: isMobile ? 1 : 2,
+          overflow: "hidden" 
+        }}>
           {ready ? (
-            /* @ts-expect-error custom element */
-            <model-viewer
-              ref={viewerRef}
-              src={modelSrc}
-              alt={`3D model of ${productName}`}
-              poster={`/poster/${productSlug}-poster.webp`}
-              camera-controls
-              auto-rotate
-              ar
-              ar-modes="webxr scene-viewer quick-look"
-              ar-scale="auto"
-              ios-src={`/models/${productSlug}.usdz`}
-              shadow-intensity="1"
-              tone-mapping="commerce"
-              environment-image={LIGHTING[activeLightingIdx].value}
-              exposure={exposure}
-              loading="eager"
-              reveal="auto"
-              style={{
-                width: "100%", height: "100%", minHeight: 400,
+            React.createElement("model-viewer", {
+              ref: viewerRef,
+              src: modelSrc,
+              alt: `3D model of ${productName}`,
+              poster: `/poster/${productSlug}-poster.webp`,
+              "camera-controls": true,
+              "auto-rotate": true,
+              ar: true,
+              "ar-modes": "webxr scene-viewer quick-look",
+              "ar-scale": "auto",
+              "ar-placement": "floor",
+              "shadow-intensity": "1",
+              "tone-mapping": "commerce",
+              "environment-image": LIGHTING[activeLightingIdx].value,
+              exposure: exposure,
+              loading: "eager",
+              reveal: "auto",
+              style: {
+                width: "100%", height: "100%",
                 background: "transparent", display: "block",
-              }}
-              suppressHydrationWarning
-            />
+              },
+              suppressHydrationWarning: true,
+            }, (
+              <button
+                slot="ar-button"
+                style={{
+                  position: "absolute", bottom: isMobile ? 16 : 24, right: isMobile ? 12 : 24,
+                  backgroundColor: "#10b981", color: "white",
+                  borderRadius: 12, padding: isMobile ? "10px 14px" : "12px 20px",
+                  fontWeight: 700, fontSize: isMobile ? 12 : 14, border: "none",
+                  display: "flex", alignItems: "center", gap: 8,
+                  boxShadow: "0 4px 12px rgba(16,185,129,0.3)",
+                  cursor: "pointer", zIndex: 99
+                }}
+              >
+                <svg width={isMobile ? "16" : "18"} height={isMobile ? "16" : "18"} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                  <polyline points="3.29 7 12 12 20.71 7"/><line x1="12" y1="22" x2="12" y2="12"/>
+                </svg>
+                View in AR
+              </button>
+            ))
           ) : (
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%" }}>
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
@@ -422,15 +503,19 @@ export function ConfiguratorModal({
             </div>
           )}
 
-          {/* Bottom status bar */}
+          {/* Color indicator tooltip overlay (bottom left) */}
           <div style={{
-            position: "absolute", bottom: 0, left: 0, right: 0,
-            display: "flex", alignItems: "center", justifyContent: "space-between",
-            padding: "8px 16px", backgroundColor: "rgba(0,0,0,0.5)",
-            backdropFilter: "blur(8px)", color: "rgba(255,255,255,0.3)", fontSize: 11,
+            position: "absolute", bottom: 12, left: 12,
+            padding: "4px 10px", borderRadius: 20,
+            backgroundColor: "rgba(17,24,32,0.6)", backdropFilter: "blur(4px)",
+            border: "1px solid rgba(255,255,255,0.1)",
+            display: "flex", alignItems: "center", gap: 6,
+            pointerEvents: "none"
           }}>
-            <span>Drag to orbit · Scroll to zoom</span>
-            <span style={{ fontFamily: "monospace" }}>{activeColor}</span>
+            <div style={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: activeColor || "#888" }} />
+            <span style={{ color: "white", fontSize: 10, fontWeight: 600, fontFamily: "monospace", opacity: 0.8 }}>
+              {activeColor || "DEFAULT"}
+            </span>
           </div>
         </div>
       </div>

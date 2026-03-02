@@ -145,7 +145,33 @@ export function DesktopViewer({ product, formatPrice, configId: propConfigId }: 
       });
       if (!res.ok) throw new Error();
       const { id } = await res.json();
-      await navigator.clipboard.writeText(`${location.origin}/share/${id}`).catch(() => null);
+      const shareUrl = `${window.location.origin}/share/${id}`;
+
+      // Robust clipboard copy with fallback for non-secure contexts
+      try {
+        if (navigator.clipboard) {
+          await navigator.clipboard.writeText(shareUrl);
+        } else {
+          throw new Error("Clipboard API unavailable");
+        }
+      } catch (err) {
+        // Fallback for non-secure contexts (e.g. local IP testing)
+        const textArea = document.createElement("textarea");
+        textArea.value = shareUrl;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-9999px";
+        textArea.style.top = "0";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+          document.execCommand('copy');
+        } catch (copyErr) {
+          console.error('Fallback copy failed', copyErr);
+        }
+        document.body.removeChild(textArea);
+      }
+
       setSaveMsg("✓ Link copied!");
       setTimeout(() => setSaveMsg(""), 3000);
     } catch {
