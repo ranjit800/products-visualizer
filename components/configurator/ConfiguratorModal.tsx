@@ -160,7 +160,7 @@ export function ConfiguratorModal({
       });
       if (!res.ok) throw new Error();
       const { id } = await res.json();
-      const shareUrl = `${window.location.origin}/products/${productSlug}?configId=${id}`;
+      const shareUrl = `${window.location.origin}/share/${id}`;
       await navigator.clipboard.writeText(shareUrl).catch(() => null);
       setSaveMsg("✓ Link copied!");
       setTimeout(() => setSaveMsg(""), 3000);
