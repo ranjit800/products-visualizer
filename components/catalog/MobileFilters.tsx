@@ -78,7 +78,7 @@ export function MobileFilters() {
   return (
     <>
       {/* ── Sliding Categories Bar (Top) ── */}
-      <div className="md:hidden w-full overflow-x-auto no-scrollbar py-3 px-4 flex gap-2 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 sticky top-0 z-20">
+      <div className="md:hidden w-full overflow-x-auto no-scrollbar py-3 px-4 flex gap-2 rounded-2xl dark:border-slate-800 bg-white dark:bg-slate-950 sticky top-0 z-20 ">
         <button
           onClick={() => handleCategorySelect("")}
           className={`shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${

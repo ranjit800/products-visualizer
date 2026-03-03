@@ -26,7 +26,7 @@ export default function WishlistPage() {
     .filter((p): p is NonNullable<typeof p> => !!p);
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-8 min-h-[60vh]">
+    <main className="mx-auto max-w-6xl px-4 py-8 min-h-[calc(100vh-140px)]">
       <div className="flex flex-col gap-6">
         {/* Back Button (Mobile only) */}
         <div className="md:hidden">
