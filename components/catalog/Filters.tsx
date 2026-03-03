@@ -87,7 +87,7 @@ export function Filters({
       <div className="mt-4 flex items-center gap-3">
         <button
           type="submit"
-          className="inline-flex h-10 items-center justify-center rounded-md bg-slate-900 px-4 text-sm font-medium text-white hover:bg-slate-800 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-200"
+          className="inline-flex h-10 items-center justify-center rounded-md bg-slate-900 px-4 text-sm font-medium text-white hover:bg-slate-800 dark:bg-slate-500 dark:text-slate-900 dark:hover:bg-slate-200"
         >
           {locale === "hi" ? "लागू करें" : "Apply"}
         </button>
