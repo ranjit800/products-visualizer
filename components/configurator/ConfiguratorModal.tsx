@@ -9,6 +9,7 @@ import {
   EXTRA_LIGHTING,
   ACCESSORIES_DEF,
 } from "./shared";
+import { useI18n } from "@/components/i18n/I18nProvider";
 
 // ── Configurator Modal (full-screen, portal) ────────────────────────────────
 // This component renders the DESKTOP full-screen 3D configurator.
@@ -26,6 +27,7 @@ export function ConfiguratorModal({
   onClose: () => void;
   configId?: string;
 }) {
+  const { locale } = useI18n();
   const [ready, setReady] = React.useState(false);
   const [mounted, setMounted] = React.useState(false);
   const [isMobile, setIsMobile] = React.useState(false);
@@ -86,7 +88,7 @@ export function ConfiguratorModal({
         if (config.components && typeof config.components === "object") {
           setAccessories((prev) => ({ ...prev, ...(config.components as Record<string, boolean>) }));
         }
-        setRestoredMsg("✓ Configuration restored!");
+        setRestoredMsg(locale === "hi" ? "✓ कॉन्फ़िगरेशन बहाल!" : "✓ Configuration restored!");
         setTimeout(() => setRestoredMsg(""), 3000);
       })
       .catch(() => null);
@@ -150,7 +152,7 @@ export function ConfiguratorModal({
     setAccessories({
       cushion: false, armrest: false, lampshade: false, base: false,
     });
-    setRestoredMsg("✓ Reset to default");
+    setRestoredMsg(locale === "hi" ? "✓ डिफ़ॉल्ट पर रीसेट करें" : "✓ Reset to default");
     setTimeout(() => setRestoredMsg(""), 3000);
   };
 
@@ -199,10 +201,10 @@ export function ConfiguratorModal({
         document.body.removeChild(textArea);
       }
 
-      setSaveMsg("✓ Link copied!");
+      setSaveMsg(locale === "hi" ? "✓ लिंक कॉपी किया गया!" : "✓ Link copied!");
       setTimeout(() => setSaveMsg(""), 3000);
     } catch {
-      setSaveMsg("Save failed");
+      setSaveMsg(locale === "hi" ? "सहेजना विफल रहा" : "Save failed");
       setTimeout(() => setSaveMsg(""), 3000);
     } finally {
       setIsSaving(false);
@@ -231,7 +233,7 @@ export function ConfiguratorModal({
           <div style={{ width: 6, height: 6, borderRadius: "50%", backgroundColor: "#8b5cf6", animation: "pulse 2s infinite", flexShrink: 0 }} />
           {!isMobile && (
             <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.12em", whiteSpace: "nowrap" }}>
-              3D Configurator
+              {locale === "hi" ? "3D कॉन्फिगरेटर" : "3D Configurator"}
             </span>
           )}
           <span style={{ 
@@ -261,7 +263,7 @@ export function ConfiguratorModal({
           <div style={{ display: "flex", gap: isMobile ? 4 : 8 }}>
             <button
               onClick={handleReset}
-              title="Reset to default"
+              title={locale === "hi" ? "डिफ़ॉल्ट पर रीसेट करें" : "Reset to default"}
               style={{
                 display: "flex", alignItems: "center", justifyContent: "center",
                 width: isMobile ? 28 : 32, height: isMobile ? 28 : 32, borderRadius: 8,
@@ -287,12 +289,12 @@ export function ConfiguratorModal({
                 cursor: "pointer", opacity: isSaving ? 0.6 : 1, transition: "all 0.15s",
               }}
             >
-              {isSaving ? "Saving…" : (
+              {isSaving ? (locale === "hi" ? "सहेजा जा रहा है..." : "Saving…") : (
                 <>
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                     <path d="m5 12 5 5L20 7"/>
                   </svg>
-                  {isMobile ? "Link" : "Copy Link"}
+                  {isMobile ? (locale === "hi" ? "लिंक" : "Link") : (locale === "hi" ? "लिंक कॉपी करें" : "Copy Link")}
                 </>
               )}
             </button>
@@ -335,15 +337,15 @@ export function ConfiguratorModal({
           {/* Colors */}
           <div style={{ padding: isMobile ? 12 : 16 }}>
             <h2 id="modal-material-color" style={{ color: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.14em", marginBottom: 10, margin: 0 }}>
-              Material Color
+              {locale === "hi" ? "सामग्री का रंग" : "Material Color"}
             </h2>
             <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(auto-fill, minmax(32px, 1fr))" : "repeat(5, 36px)", gap: 8 }}>
               {COLORS.map((c) => (
                 <button
                   key={c.hex}
                   onClick={() => setActiveColor(c.hex)}
-                  aria-label={c.label}
-                  title={c.label}
+                  aria-label={c.label[locale]}
+                  title={c.label[locale]}
                   style={{
                     width: isMobile ? 32 : 36, height: isMobile ? 32 : 36, borderRadius: "50%", backgroundColor: c.hex,
                     border: "none", cursor: "pointer",
@@ -362,7 +364,7 @@ export function ConfiguratorModal({
           {/* Lighting */}
           <div style={{ padding: isMobile ? 12 : 16 }}>
             <h2 id="modal-lighting" style={{ color: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.14em", marginBottom: 10, margin: 0 }}>
-              Lighting
+              {locale === "hi" ? "प्रकाश व्यवस्था" : "Lighting"}
             </h2>
             <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(5, 1fr)" : "repeat(3, 1fr)", gap: 6 }}>
               {LIGHTING.map((l, i) => {
@@ -381,7 +383,7 @@ export function ConfiguratorModal({
                     }}
                   >
                     <span style={{ fontSize: isMobile ? 14 : 18 }}>{l.icon}</span>
-                    <span style={{ textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap", width: "100%", textAlign: "center" }}>{l.label}</span>
+                    <span style={{ textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap", width: "100%", textAlign: "center" }}>{l.label[locale]}</span>
                   </button>
                 );
               })}
@@ -393,13 +395,13 @@ export function ConfiguratorModal({
           {/* Exposure */}
           <div style={{ padding: isMobile ? 12 : 16 }}>
             <h2 id="modal-exposure" style={{ color: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.14em", marginBottom: 10, margin: 0 }}>
-              Exposure ({exposure.toFixed(2)})
+              {locale === "hi" ? "एक्सपोज़र" : "Exposure"} ({exposure.toFixed(2)})
             </h2>
             <input
               type="range" min={0.4} max={2.0} step={0.05} value={exposure}
               onChange={(e) => setExposure(Number(e.target.value))}
               style={{ width: "100%", accentColor: "#7c3aed" }}
-              aria-label="Exposure"
+              aria-label={locale === "hi" ? "एक्सपोज़र" : "Exposure"}
             />
           </div>
 
@@ -408,7 +410,7 @@ export function ConfiguratorModal({
           {/* Accessories */}
           <div style={{ padding: isMobile ? 12 : 16 }}>
             <h2 id="modal-accessories" style={{ color: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.14em", marginBottom: 10, margin: 0 }}>
-              Accessories
+              {locale === "hi" ? "घटक" : "Accessories"}
             </h2>
             <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "1fr", gap: 8 }}>
               {ACCESSORIES_DEF.map((a) => (
@@ -425,7 +427,7 @@ export function ConfiguratorModal({
                   }}
                 >
                   <span style={{ fontSize: 14 }}>{a.icon}</span>
-                  <span style={{ flex: 1 }}>{a.label}</span>
+                  <span style={{ flex: 1 }}>{a.label[locale]}</span>
                   <div style={{ width: 6, height: 6, borderRadius: "50%", backgroundColor: accessories[a.id] ? "#7c3aed" : "rgba(255,255,255,0.1)" }} />
                 </button>
               ))}
@@ -433,7 +435,7 @@ export function ConfiguratorModal({
           </div>
           
           <div style={{ padding: "8px 16px", color: "rgba(255,255,255,0.15)", fontSize: 9 }}>
-            {isMobile ? "Pinch to zoom · 1-finger to orbit" : "Drag to orbit · Scroll to zoom"}
+            {isMobile ? (locale === "hi" ? "ज़ूम करने के लिए पिंच करें · परिक्रमा करने के लिए 1-फिंगर" : "Pinch to zoom · 1-finger to orbit") : (locale === "hi" ? "परिक्रमा करने के लिए खींचें · ज़ूम करने के लिए स्क्रॉल करें" : "Drag to orbit · Scroll to zoom")}
           </div>
         </div>
 
@@ -486,7 +488,7 @@ export function ConfiguratorModal({
                   <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
                   <polyline points="3.29 7 12 12 20.71 7"/><line x1="12" y1="22" x2="12" y2="12"/>
                 </svg>
-                View in AR
+                {locale === "hi" ? "AR में देखें" : "View in AR"}
               </button>
             ))
           ) : (
@@ -498,7 +500,9 @@ export function ConfiguratorModal({
                   borderTopColor: "#8b5cf6",
                   animation: "spin 0.8s linear infinite",
                 }} />
-                <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 13 }}>Loading 3D model…</p>
+                <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 13 }}>
+                  {locale === "hi" ? "3D मॉडल लोड किया जा रहा है..." : "Loading 3D model…"}
+                </p>
               </div>
             </div>
           )}
@@ -514,7 +518,7 @@ export function ConfiguratorModal({
           }}>
             <div style={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: activeColor || "#888" }} />
             <span style={{ color: "white", fontSize: 10, fontWeight: 600, fontFamily: "monospace", opacity: 0.8 }}>
-              {activeColor || "DEFAULT"}
+              {activeColor || (locale === "hi" ? "डिफ़ॉल्ट" : "DEFAULT")}
             </span>
           </div>
         </div>

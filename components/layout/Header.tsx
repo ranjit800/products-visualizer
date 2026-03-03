@@ -20,8 +20,11 @@ export function Header() {
           aria-label="Primary"
           className="flex items-center gap-5 text-sm text-slate-600 dark:text-slate-300"
         >
-          <Link href="/products" className="hover:text-slate-900 dark:hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-slate-900 dark:focus-visible:outline-white underline-offset-4 hover:underline">
+          <Link href="/products" className="hidden md:block hover:text-slate-900 dark:hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-slate-900 dark:focus-visible:outline-white underline-offset-4 hover:underline">
             {t("navProducts")}
+          </Link>
+          <Link href="/wishlist" className="hidden md:block hover:text-slate-900 dark:hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-slate-900 dark:focus-visible:outline-white underline-offset-4 hover:underline">
+            {t("navWishlist")}
           </Link>
           <Link href="/admin/preview" className="hover:text-slate-900 dark:hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-slate-900 dark:focus-visible:outline-white underline-offset-4 hover:underline">
             {t("navAdmin")}

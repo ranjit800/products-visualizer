@@ -12,6 +12,8 @@ import * as React from "react";
 import type { Product } from "@/lib/products";
 import Link from "next/link";
 import { useUIStore } from "@/store/uiStore";
+import { useI18n } from "@/components/i18n/I18nProvider";
+import { formatPriceCents } from "@/lib/products";
 import {
   loadModelViewer,
   COLORS,
@@ -21,13 +23,16 @@ import {
 } from "./shared";
 import { PresenceBadge } from "./PresenceBadge";
 
+import type { Locale } from "@/lib/i18n";
+
 type DesktopViewerProps = {
-  product: Product & { title: { en: string; hi: string } };
-  formatPrice: string;
+  product: Product;
   configId?: string;
 };
 
-export function DesktopViewer({ product, formatPrice, configId: propConfigId }: DesktopViewerProps) {
+export function DesktopViewer({ product, configId: propConfigId }: DesktopViewerProps) {
+  const { locale } = useI18n();
+  const formatPrice = formatPriceCents(product.priceCents, locale);
   const { flags } = useUIStore();
   const [ready, setReady] = React.useState(false);
   const viewerRef = React.useRef<HTMLElement | null>(null);
@@ -70,7 +75,7 @@ export function DesktopViewer({ product, formatPrice, configId: propConfigId }: 
         if (config.components && typeof config.components === "object") {
           setAccessories((prev) => ({ ...prev, ...(config.components as Record<string, boolean>) }));
         }
-        setRestoredMsg("✓ Configuration restored!");
+        setRestoredMsg(locale === "hi" ? "✓ कॉन्फ़िगरेशन बहाल!" : "✓ Configuration restored!");
         setTimeout(() => setRestoredMsg(""), 3000);
       })
       .catch(() => null);
@@ -172,10 +177,10 @@ export function DesktopViewer({ product, formatPrice, configId: propConfigId }: 
         document.body.removeChild(textArea);
       }
 
-      setSaveMsg("✓ Link copied!");
+      setSaveMsg(locale === "hi" ? "✓ लिंक कॉपी किया गया!" : "✓ Link copied!");
       setTimeout(() => setSaveMsg(""), 3000);
     } catch {
-      setSaveMsg("Save failed");
+      setSaveMsg(locale === "hi" ? "सहेजना विफल रहा" : "Save failed");
       setTimeout(() => setSaveMsg(""), 3000);
     } finally {
       setIsSaving(false);
@@ -189,7 +194,7 @@ export function DesktopViewer({ product, formatPrice, configId: propConfigId }: 
       left: 0, right: 0, bottom: 0,
       overflow: "hidden",
       display: "flex",
-      backgroundColor: "#f5f5f5",
+      backgroundColor: "var(--bg-main)",
       zIndex: 10,
     }}>
       {/* ── Left: 3D Viewer ── */}
@@ -199,7 +204,7 @@ export function DesktopViewer({ product, formatPrice, configId: propConfigId }: 
           <model-viewer
             ref={viewerRef}
             src={modelSrc}
-            alt={`3D model of ${product.title.en}`}
+            alt={`3D model of ${product.title[locale]}`}
             poster={posterSrc}
             camera-controls
             auto-rotate
@@ -219,16 +224,18 @@ export function DesktopViewer({ product, formatPrice, configId: propConfigId }: 
           <div style={{
             position: "absolute", inset: 0, display: "flex",
             alignItems: "center", justifyContent: "center",
-            background: "linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)",
+            background: "var(--bg-main)",
           }}>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
               <div style={{
                 width: 56, height: 56, borderRadius: "50%",
-                border: "4px solid rgba(0,0,0,0.08)",
+                border: "4px solid rgba(255,255,255,0.1)",
                 borderTopColor: "#7c3aed",
                 animation: "spin 0.8s linear infinite",
               }} />
-              <p style={{ color: "#64748b", fontSize: 14, fontWeight: 500 }}>Loading 3D Model…</p>
+              <p style={{ color: "var(--text-muted)", fontSize: 14, fontWeight: 500 }}>
+                {locale === "hi" ? "3D मॉडल लोड किया जा रहा है..." : "Loading 3D Model…"}
+              </p>
             </div>
           </div>
         )}
@@ -240,8 +247,8 @@ export function DesktopViewer({ product, formatPrice, configId: propConfigId }: 
             style={{
               display: "flex", alignItems: "center", justifyContent: "center",
               width: 40, height: 40, borderRadius: "50%",
-              backgroundColor: "rgba(255,255,255,0.9)",
-              backdropFilter: "blur(8px)", color: "#1e293b",
+              backgroundColor: "var(--bg-panel)",
+              backdropFilter: "blur(8px)", color: "var(--text-main)",
               textDecoration: "none", fontSize: 18, fontWeight: 700,
               boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
             }}
@@ -255,8 +262,8 @@ export function DesktopViewer({ product, formatPrice, configId: propConfigId }: 
       <div className="desktop-info-panel" style={{
         width: 380,
         flexShrink: 0,
-        backgroundColor: "#0d1117", // Dark theme like the modal
-        color: "rgba(255,255,255,0.9)",
+        backgroundColor: "var(--bg-panel)",
+        color: "var(--text-main)",
         borderLeft: "1px solid rgba(255,255,255,0.08)",
         overflowY: "auto",
         scrollbarWidth: "none",
@@ -269,7 +276,7 @@ export function DesktopViewer({ product, formatPrice, configId: propConfigId }: 
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
             <h1 style={{ fontSize: 24, fontWeight: 800, margin: 0, letterSpacing: "-0.02em" }}>
-              {product.title.en}
+              {product.title[locale]}
             </h1>
             <button
               onClick={handleSave}
@@ -280,7 +287,7 @@ export function DesktopViewer({ product, formatPrice, configId: propConfigId }: 
                 cursor: "pointer", transition: "all 0.15s",
               }}
             >
-              {isSaving ? "Saving…" : "Save & Share"}
+              {isSaving ? (locale === "hi" ? "सहेजा जा रहा है..." : "Saving…") : (locale === "hi" ? "सहेजें और साझा करें" : "Save & Share")}
             </button>
           </div>
           <span style={{ fontSize: 20, fontWeight: 800, color: "#a78bfa" }}>
@@ -302,7 +309,7 @@ export function DesktopViewer({ product, formatPrice, configId: propConfigId }: 
             backgroundColor: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.5)",
             fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em",
           }}>
-            {product.category}
+            {locale === "hi" ? (product.category === "Chair" ? "कुर्सी" : product.category === "Lamp" ? "लैम्प" : "डेस्क") : product.category}
           </span>
           {product.tags.map(tag => (
             <span key={tag} style={{
@@ -310,13 +317,13 @@ export function DesktopViewer({ product, formatPrice, configId: propConfigId }: 
               backgroundColor: "rgba(139,92,246,0.15)", color: "#a78bfa",
               fontSize: 10, fontWeight: 700,
             }}>
-              {tag}
+              {locale === "hi" ? (tag === "minimal" ? "मिनिमल" : tag === "indoor" ? "इनडोर" : tag === "comfort" ? "आरामदायक" : tag === "compact" ? "कॉम्पैक्ट" : tag === "desk" ? "डेस्क" : tag === "ambient" ? "एंबियंट" : tag === "floor" ? "फर्श" : tag === "warm" ? "वार्म" : tag === "work" ? "काम" : tag === "premium" ? "प्रीमियम" : tag) : tag}
             </span>
           ))}
         </div>
 
-        <p style={{ color: "rgba(255,255,255,0.4)", fontSize: 13, lineHeight: 1.6, margin: 0 }}>
-          {product.description.en}
+        <p style={{ color: "var(--text-muted)", fontSize: 13, lineHeight: 1.6, margin: 0 }}>
+          {product.description[locale]}
         </p>
 
         <div style={{ height: 1, backgroundColor: "rgba(255,255,255,0.06)" }} />
@@ -327,10 +334,10 @@ export function DesktopViewer({ product, formatPrice, configId: propConfigId }: 
         <section aria-labelledby="material-color-heading">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
             <h2 id="material-color-heading" style={{ color: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", margin: 0 }}>
-              Material Color
+              {locale === "hi" ? "सामग्री का रंग" : "Material Color"}
             </h2>
             <span style={{ fontSize: 10, fontFamily: "monospace", color: "rgba(255,255,255,0.3)" }}>
-              {activeColor ?? "Default"}
+              {activeColor ?? (locale === "hi" ? "डिफ़ॉल्ट" : "Default")}
             </span>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 10 }}>
@@ -338,7 +345,7 @@ export function DesktopViewer({ product, formatPrice, configId: propConfigId }: 
               <button
                 key={c.hex}
                 onClick={() => setActiveColor(c.hex)}
-                aria-label={`Select ${c.label} color`}
+                aria-label={locale === "hi" ? `चुनें ${c.label.hi} रंग` : `Select ${c.label.en} color`}
                 style={{
                   aspectRatio: "1/1", borderRadius: "50%", backgroundColor: c.hex,
                   border: "none", cursor: "pointer",
@@ -347,7 +354,7 @@ export function DesktopViewer({ product, formatPrice, configId: propConfigId }: 
                   transform: activeColor === c.hex ? "scale(1.1)" : "scale(1)",
                   transition: "all 0.15s ease",
                 }}
-                title={c.label}
+                title={c.label[locale]}
               />
             ))}
           </div>
@@ -356,7 +363,7 @@ export function DesktopViewer({ product, formatPrice, configId: propConfigId }: 
         {/* Lighting */}
         <section aria-labelledby="lighting-setup-heading">
           <h2 id="lighting-setup-heading" style={{ color: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12 }}>
-            Lighting Setup
+            {locale === "hi" ? "प्रकाश व्यवस्था" : "Lighting Setup"}
           </h2>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
             {LIGHTING.map((l, i) => {
@@ -374,7 +381,7 @@ export function DesktopViewer({ product, formatPrice, configId: propConfigId }: 
                   }}
                 >
                   <span style={{ fontSize: 18 }}>{l.icon}</span>
-                  {l.label}
+                  {l.label[locale]}
                 </button>
               );
             })}
@@ -385,7 +392,7 @@ export function DesktopViewer({ product, formatPrice, configId: propConfigId }: 
         <section aria-labelledby="exposure-heading">
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
             <h2 id="exposure-heading" style={{ color: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", margin: 0 }}>
-              Exposure
+              {locale === "hi" ? "एक्सपोज़र" : "Exposure"}
             </h2>
             <span style={{ fontSize: 10, fontFamily: "monospace", color: "rgba(255,255,255,0.3)" }}>
               {exposure.toFixed(2)}
@@ -401,7 +408,7 @@ export function DesktopViewer({ product, formatPrice, configId: propConfigId }: 
         {/* Accessories */}
         <section aria-labelledby="components-heading">
           <h2 id="components-heading" style={{ color: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12 }}>
-            Components
+            {locale === "hi" ? "घटक" : "Components"}
           </h2>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {ACCESSORIES_DEF.map((a) => (
@@ -417,7 +424,7 @@ export function DesktopViewer({ product, formatPrice, configId: propConfigId }: 
                 }}
               >
                 <span style={{ fontSize: 16 }}>{a.icon}</span>
-                <span style={{ flex: 1, textAlign: "left" }}>{a.label}</span>
+                <span style={{ flex: 1, textAlign: "left" }}>{a.label[locale]}</span>
                 <div style={{
                   width: 32, height: 18, borderRadius: 10,
                   backgroundColor: accessories[a.id] ? "#7c3aed" : "rgba(255,255,255,0.1)",
@@ -437,7 +444,7 @@ export function DesktopViewer({ product, formatPrice, configId: propConfigId }: 
 
         {/* Hint */}
         <p style={{ color: "rgba(255,255,255,0.2)", fontSize: 10, textAlign: "center", marginTop: "auto" }}>
-          🖱 Drag to orbit · 🖲 Scroll to zoom
+          {locale === "hi" ? "🖱 परिक्रमा करने के लिए खींचें · 🖲 ज़ूम करने के लिए स्क्रॉल करें" : "🖱 Drag to orbit · 🖲 Scroll to zoom"}
         </p>
       </div>
 

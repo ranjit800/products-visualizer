@@ -2,6 +2,8 @@
   "appName": "Visualizer",
   "navProducts": "Products",
   "navAdmin": "Admin",
+  "navWishlist": "Wishlist",
+  "wishlistEmpty": "Your wishlist is empty.",
+  "browseProducts": "Browse Products",
   "footerTagline": "Product Configurator & Showcase"
 }
-

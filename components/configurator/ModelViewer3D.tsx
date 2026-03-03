@@ -12,7 +12,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import * as React from "react";
-import type { Product } from "@/lib/products";
+import { type Product } from "@/lib/products";
+import { useI18n } from "@/components/i18n/I18nProvider";
 import { MobileViewer } from "./MobileViewer";
 
 // Lazy-load desktop viewer — mobile users never download this chunk
@@ -21,12 +22,12 @@ const DesktopViewer = React.lazy(() =>
 );
 
 type ModelViewer3DProps = {
-  product: Product & { title: { en: string; hi: string } };
-  formatPrice: string;
+  product: Product;
   configId?: string;
 };
 
-export function ModelViewer3D({ product, formatPrice, configId }: ModelViewer3DProps) {
+export function ModelViewer3D({ product, configId }: ModelViewer3DProps) {
+  const { locale } = useI18n();
   const [isDesktop, setIsDesktop] = React.useState(false);
   const [hydrated, setHydrated] = React.useState(false);
 
@@ -42,23 +43,27 @@ export function ModelViewer3D({ product, formatPrice, configId }: ModelViewer3DP
   // Avoid "Mobile flicker" on desktop reload: render a simple loader until we know the device
   if (!hydrated) {
     return (
-      <div style={{ position: "fixed", top: 56, left: 0, right: 0, bottom: 0, display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#f8f9fa" }}>
-        <p style={{ color: "#64748b", fontStyle: "italic", fontSize: 14 }}>Initializing...</p>
+      <div style={{ position: "fixed", top: 56, left: 0, right: 0, bottom: 0, display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "var(--bg-main, #f8fafc)" }}>
+        <p style={{ color: "var(--text-muted, #64748b)", fontStyle: "italic", fontSize: 14 }}>
+          {locale === "hi" ? "आरंभ किया जा रहा है..." : "Initializing..."}
+        </p>
       </div>
     );
   }
 
   if (!isDesktop) {
-    return <MobileViewer product={product} formatPrice={formatPrice} configId={configId} />;
+    return <MobileViewer product={product} configId={configId} />;
   }
 
   return (
     <React.Suspense fallback={
-      <div style={{ height: "100vh", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "#f8f9fa" }}>
-        <p style={{ color: "#64748b", fontSize: 14 }}>Loading Desktop Experience...</p>
+      <div style={{ height: "100vh", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "var(--bg-main, #f8fafc)" }}>
+        <p style={{ color: "var(--text-muted, #64748b)", fontSize: 14 }}>
+          {locale === "hi" ? "डेस्कटॉप अनुभव लोड किया जा रहा है..." : "Loading Desktop Experience..."}
+        </p>
       </div>
     }>
-      <DesktopViewer product={product} formatPrice={formatPrice} configId={configId} />
+      <DesktopViewer product={product} configId={configId} />
     </React.Suspense>
   );
 }

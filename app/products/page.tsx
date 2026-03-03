@@ -16,6 +16,10 @@ export const metadata: Metadata = {
 };
 
 
+import { cookies } from "next/headers";
+import { getDictionary, type Locale } from "@/lib/i18n";
+import { LOCALE_COOKIE_KEY } from "@/components/i18n/I18nProvider";
+
 function parseIntOrUndefined(v: string | undefined) {
   if (!v) return undefined;
   const n = Number.parseInt(v, 10);
@@ -28,6 +32,9 @@ export default async function ProductsPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const sp = await searchParams;
+  const cookieStore = await cookies();
+  const locale = (cookieStore.get(LOCALE_COOKIE_KEY)?.value as Locale) ?? "en";
+  const dict = getDictionary(locale);
 
   const page = parseIntOrUndefined(typeof sp.page === "string" ? sp.page : undefined) ?? 1;
 
@@ -61,12 +68,14 @@ export default async function ProductsPage({
       {/* Desktop Header */}
       <div className="hidden md:flex items-end justify-between gap-6">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Products</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">{dict.navProducts || "Products"}</h1>
           <p className="mt-2 text-slate-600 dark:text-slate-300">
-            Apply filters and browse the product catalog.
+            {locale === "hi" ? "फ़िल्टर लागू करें और उत्पाद सूची ब्राउज़ करें।" : "Apply filters and browse the product catalog."}
           </p>
         </div>
-        <p className="text-sm text-slate-600 dark:text-slate-300">{total} results</p>
+        <p className="text-sm text-slate-600 dark:text-slate-300">
+          {total} {locale === "hi" ? "परिणाम" : "results"}
+        </p>
       </div>
 
       {/* Mobile Top Nav (Slide Filters) */}
@@ -99,7 +108,7 @@ export default async function ProductsPage({
 
         {items.length === 0 ? (
           <p className="mt-8 text-sm text-slate-600 dark:text-slate-300">
-            No products found.
+            {locale === "hi" ? "कोई उत्पाद नहीं मिला।" : "No products found."}
           </p>
         ) : null}
 

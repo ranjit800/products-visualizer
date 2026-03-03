@@ -1,8 +1,10 @@
 "use client";
 import * as React from "react";
+import { useI18n } from "@/components/i18n/I18nProvider";
 
 // ── Live Presence Badge (simulated) ──────────────────────────────────────────
 export function PresenceBadge() {
+  const { locale } = useI18n();
   const [count, setCount] = React.useState(() => Math.floor(Math.random() * 7) + 2);
   React.useEffect(() => {
     const id = setInterval(() => {
@@ -25,7 +27,7 @@ export function PresenceBadge() {
         animation: "pulse 2s infinite",
         display: "inline-block",
       }} />
-      {count} people viewing this right now
+      {count} {locale === "hi" ? "लोग अभी इसे देख रहे हैं" : "people viewing this right now"}
     </div>
   );
 }

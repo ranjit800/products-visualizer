@@ -29,6 +29,7 @@ export type UIState = {
     theme: Theme;
     flags: FeatureFlags;
     toasts: Toast[];
+    isMobileFilterOpen: boolean;
 };
 
 export type UIActions = {
@@ -36,6 +37,7 @@ export type UIActions = {
     setFlag: (flag: keyof FeatureFlags, value: boolean) => void;
     addToast: (toast: Omit<Toast, "id">) => void;
     removeToast: (id: string) => void;
+    setIsMobileFilterOpen: (open: boolean) => void;
 };
 
 /* ── Defaults ── */
@@ -56,6 +58,7 @@ export const useUIStore = create<UIState & UIActions>()(
                 theme: "light" as Theme,
                 flags: DEFAULT_FLAGS,
                 toasts: [],
+                isMobileFilterOpen: false,
 
                 /* Actions */
                 setTheme(theme) {
@@ -78,6 +81,10 @@ export const useUIStore = create<UIState & UIActions>()(
 
                 removeToast(id) {
                     set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) }), false, "removeToast");
+                },
+
+                setIsMobileFilterOpen(open) {
+                    set({ isMobileFilterOpen: open }, false, "setIsMobileFilterOpen");
                 },
             }),
             {

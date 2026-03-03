@@ -2,6 +2,8 @@
   "appName": "Visualizer",
   "navProducts": "उत्पाद",
   "navAdmin": "एडमिन",
+  "navWishlist": "विशलिस्ट",
+  "wishlistEmpty": "आपकी विशलिस्ट खाली है।",
+  "browseProducts": "उत्पाद ब्राउज़ करें",
   "footerTagline": "प्रोडक्ट कॉन्फ़िगरेटर और शोकेस"
 }
-

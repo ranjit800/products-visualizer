@@ -1,22 +1,27 @@
 "use client";
 import * as React from "react";
 import Link from "next/link";
+import { formatPriceCents } from "@/lib/products";
 import type { Product } from "@/lib/products";
 import { useUIStore } from "@/store/uiStore";
+import { useI18n } from "@/components/i18n/I18nProvider";
 import { loadModelViewer, SHEET_HEIGHTS, type SheetState } from "./shared";
 import { PresenceBadge } from "./PresenceBadge";
 import { ConfiguratorModal } from "./ConfiguratorModal";
 
+import type { Locale } from "@/lib/i18n";
+
 type MobileViewerProps = {
-  product: Product & { title: { en: string; hi: string } };
-  formatPrice: string;
+  product: Product;
   configId?: string;
 };
 
 // ── Mobile experience: full-screen 3D model + bottom info sheet ──────────────
 // The sheet can be dragged between collapsed / half / full states.
 // Tapping the handle also cycles through the states.
-export function MobileViewer({ product, formatPrice, configId: propConfigId }: MobileViewerProps) {
+export function MobileViewer({ product, configId: propConfigId }: MobileViewerProps) {
+  const { locale } = useI18n();
+  const formatPrice = formatPriceCents(product.priceCents, locale);
   const { flags } = useUIStore();
   const [ready, setReady] = React.useState(false);
   const [showConfigurator, setShowConfigurator] = React.useState(false);
@@ -107,7 +112,7 @@ export function MobileViewer({ product, formatPrice, configId: propConfigId }: M
       right: 0,
       bottom: 0,
       overflow: "hidden",
-      backgroundColor: "#f5f5f5",
+      backgroundColor: "var(--bg-main)",
       zIndex: 10,
     }}>
       {/* ── Full-screen 3D Viewer ── */}
@@ -117,7 +122,7 @@ export function MobileViewer({ product, formatPrice, configId: propConfigId }: M
           <model-viewer
             ref={viewerRef}
             src={modelSrc}
-            alt={`3D model of ${product.title.en}`}
+            alt={`3D model of ${product.title[locale]}`}
             poster={posterSrc}
             camera-controls
             auto-rotate
@@ -140,16 +145,18 @@ export function MobileViewer({ product, formatPrice, configId: propConfigId }: M
           <div style={{
             position: "absolute", inset: 0, display: "flex",
             alignItems: "center", justifyContent: "center",
-            background: "linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)",
+            background: "var(--bg-main)",
           }}>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
               <div style={{
                 width: 56, height: 56, borderRadius: "50%",
-                border: "4px solid rgba(0,0,0,0.08)",
+                border: "4px solid rgba(255,255,255,0.1)",
                 borderTopColor: "#7c3aed",
                 animation: "spin 0.8s linear infinite",
               }} />
-              <p style={{ color: "#64748b", fontSize: 14, fontWeight: 500 }}>Loading 3D Model…</p>
+              <p style={{ color: "var(--text-muted)", fontSize: 14, fontWeight: 500 }}>
+                {locale === "hi" ? "3D मॉडल लोड किया जा रहा है..." : "Loading 3D Model…"}
+              </p>
             </div>
           </div>
         )}
@@ -167,8 +174,8 @@ export function MobileViewer({ product, formatPrice, configId: propConfigId }: M
           style={{
             display: "flex", alignItems: "center", justifyContent: "center",
             width: 40, height: 40, borderRadius: "50%",
-            backgroundColor: "rgba(255,255,255,0.9)",
-            backdropFilter: "blur(8px)", color: "#1e293b",
+            backgroundColor: "var(--bg-panel)",
+            backdropFilter: "blur(8px)", color: "var(--text-main)",
             textDecoration: "none", fontSize: 18, fontWeight: 700,
             boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
           }}
@@ -198,7 +205,7 @@ export function MobileViewer({ product, formatPrice, configId: propConfigId }: M
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
               </svg>
-              View in AR
+              {locale === "hi" ? "AR में देखें" : "View in AR"}
             </button>
           )}
           {showARFailed && flags.enableAR && (
@@ -208,7 +215,7 @@ export function MobileViewer({ product, formatPrice, configId: propConfigId }: M
               backgroundColor: "rgba(239,68,68,0.15)", border: "1px solid rgba(239,68,68,0.4)",
               color: "#fca5a5", fontSize: 12,
             }}>
-              ⚠ AR not supported on this device
+              {locale === "hi" ? "⚠ इस डिवाइस पर AR समर्थित नहीं है" : "⚠ AR not supported on this device"}
             </div>
           )}
         </div>
@@ -220,13 +227,14 @@ export function MobileViewer({ product, formatPrice, configId: propConfigId }: M
           position: "absolute", bottom: 0, left: 0, right: 0,
           height: getSheetHeight(),
           transition: isDragging ? "none" : "height 0.35s cubic-bezier(0.4,0,0.2,1)",
-          backgroundColor: "rgba(255,255,255,0.98)",
+          backgroundColor: "var(--bg-panel)",
           backdropFilter: "blur(24px)",
           WebkitBackdropFilter: "blur(24px)",
           borderRadius: "24px 24px 0 0",
           boxShadow: "0 -4px 32px rgba(0,0,0,0.14)",
           display: "flex", flexDirection: "column",
           paddingBottom: "env(safe-area-inset-bottom, 0px)",
+          borderTop: "1px solid rgba(255,255,255,0.05)",
           zIndex: 30,
         }}
       >
@@ -246,10 +254,10 @@ export function MobileViewer({ product, formatPrice, configId: propConfigId }: M
 
           {/* Always-visible product name + price row */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", marginTop: 10 }}>
-            <h1 style={{ fontSize: 20, fontWeight: 800, color: "#0f172a", margin: 0, letterSpacing: "-0.02em" }}>
-              {product.title.en}
+            <h1 style={{ fontSize: 20, fontWeight: 800, color: "var(--text-main)", margin: 0, letterSpacing: "-0.02em" }}>
+              {product.title[locale]}
             </h1>
-            <span style={{ fontSize: 20, fontWeight: 800, color: "#0f172a", whiteSpace: "nowrap", marginLeft: 12 }}>
+            <span style={{ fontSize: 20, fontWeight: 800, color: "var(--text-main)", whiteSpace: "nowrap", marginLeft: 12 }}>
               {formatPrice}
             </span>
           </div>
@@ -267,7 +275,7 @@ export function MobileViewer({ product, formatPrice, configId: propConfigId }: M
               backgroundColor: "#f1f5f9", color: "#475569",
               fontSize: 12, fontWeight: 600, textTransform: "uppercase" as const, letterSpacing: "0.06em",
             }}>
-              {product.category}
+              {locale === "hi" ? (product.category === "Chair" ? "कुर्सी" : product.category === "Lamp" ? "लैम्प" : "डेस्क") : product.category}
             </span>
             {product.tags.map(tag => (
               <span key={tag} style={{
@@ -275,28 +283,42 @@ export function MobileViewer({ product, formatPrice, configId: propConfigId }: M
                 backgroundColor: "#ede9fe", color: "#7c3aed",
                 fontSize: 12, fontWeight: 600,
               }}>
-                {tag}
+                {locale === "hi" ? (tag === "minimal" ? "मिनिमल" : tag === "indoor" ? "इनडोर" : tag === "comfort" ? "आरामदायक" : tag === "compact" ? "कॉम्पैक्ट" : tag === "desk" ? "डेस्क" : tag === "ambient" ? "एंबियंट" : tag === "floor" ? "फर्श" : tag === "warm" ? "वार्म" : tag === "work" ? "काम" : tag === "premium" ? "प्रीमियम" : tag) : tag}
               </span>
             ))}
           </div>
 
           {/* Description */}
-          <p style={{ color: "#64748b", fontSize: 14, lineHeight: 1.7, margin: 0 }}>
-            {product.description.en}
+          <p style={{ color: "var(--text-muted)", fontSize: 14, lineHeight: 1.7, margin: 0 }}>
+            {product.description[locale]}
           </p>
+
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 4 }}>
+            <span style={{
+              padding: "4px 8px", borderRadius: 4,
+              backgroundColor: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.5)",
+              fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em",
+            }}>
+              {locale === "hi" ? (product.category === "Chair" ? "कुर्सी" : product.category === "Lamp" ? "लैम्प" : "डेस्क") : product.category}
+            </span>
+          </div>
 
           <hr style={{ border: "none", borderTop: "1px solid #e2e8f0", margin: 0 }} />
 
           {/* Feature bullets */}
           <div style={{ display: "flex", flexDirection: "column" as const, gap: 8 }}>
-            {[
+            {(locale === "hi" ? [
+              "इंटरएक्टिव 3D कॉन्फ़िगरेशन",
+              "समर्थित मोबाइल उपकरणों पर AR पूर्वावलोकन",
+              "अपना कॉन्फ़िगरेशन सहेजें और साझा करें",
+            ] : [
               "Interactive 3D configuration",
               "AR preview on supported mobile devices",
               "Save and share your configuration",
-            ].map(f => (
+            ]).map(f => (
               <div key={f} style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <span style={{ color: "#10b981", fontWeight: 700, fontSize: 16 }}>✓</span>
-                <span style={{ color: "#475569", fontSize: 13 }}>{f}</span>
+                <span style={{ color: "var(--text-muted)", fontSize: 13 }}>{f}</span>
               </div>
             ))}
           </div>
@@ -320,7 +342,7 @@ export function MobileViewer({ product, formatPrice, configId: propConfigId }: M
               <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
               <polyline points="3.29 7 12 12 20.71 7"/><line x1="12" y1="22" x2="12" y2="12"/>
             </svg>
-            Customize in 3D
+            {locale === "hi" ? "3D में अनुकूलित करें" : "Customize in 3D"}
           </button>
         </div>
       </div>
@@ -329,7 +351,7 @@ export function MobileViewer({ product, formatPrice, configId: propConfigId }: M
       {mounted && showConfigurator && (
         <ConfiguratorModal
           productSlug={product.slug}
-          productName={product.title.en}
+          productName={product.title[locale]}
           modelSrc={modelSrc}
           onClose={() => setShowConfigurator(false)}
         />

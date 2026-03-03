@@ -192,8 +192,8 @@ export function getAllSlugs(): string[] {
   return PRODUCTS.map((p) => p.slug);
 }
 
-export function formatPriceCents(priceCents: number): string {
-  return new Intl.NumberFormat("en-US", {
+export function formatPriceCents(priceCents: number, locale: Locale = "en"): string {
+  return new Intl.NumberFormat(locale === "hi" ? "hi-IN" : "en-US", {
     style: "currency",
     currency: "USD",
     maximumFractionDigits: 0,

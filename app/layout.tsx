@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { cookies } from "next/headers";
 import "./globals.css";
 
-import { Footer, Header } from "@/components/layout";
+import { Footer, Header, MobileNav } from "@/components/layout";
 import { Providers } from "@/app/providers";
 import { ServiceWorkerRegistrar } from "@/components/pwa/ServiceWorkerRegistrar";
 import { DEFAULT_LOCALE, type Locale } from "@/lib/i18n";
@@ -70,6 +70,7 @@ export default async function RootLayout({
           <div className="min-h-dvh">
             <Header />
             {children}
+            <MobileNav />
             <Footer />
           </div>
           <ServiceWorkerRegistrar />

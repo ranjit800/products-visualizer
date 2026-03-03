@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useI18n } from "@/components/i18n/I18nProvider";
 import type { Product } from "@/lib/products";
+import { useWishlistStore } from "@/store/wishlistStore";
 
 function formatPrice(priceCents: number, locale: "en" | "hi") {
   const price = priceCents / 100;
@@ -17,35 +18,36 @@ function formatPrice(priceCents: number, locale: "en" | "hi") {
 
 export function ProductCard({ product }: { product: Product }) {
   const { locale } = useI18n();
-  const [isInWishlist, setIsInWishlist] = useState(false);
+  const { toggleWishlist, isInWishlist } = useWishlistStore();
+  const active = isInWishlist(product.slug);
 
   const handleWishlistClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsInWishlist(!isInWishlist);
+    toggleWishlist(product.slug);
   };
 
   return (
     <Link
       href={`/products/${product.slug}`}
-      className="relative flex flex-col bg-white dark:bg-[#161616] rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.08)] dark:shadow-[0_0px_15px_3px_rgba(0,0,0,0.10)] border border-slate-200 dark:border-transparent transition-transform hover:-translate-y-1"
+      className="relative flex flex-col bg-white dark:bg-[#161616] rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.08)] dark:shadow-[0_0px_15px_3px_rgba(0,0,0,0.15)] border border-slate-200 dark:border-white/5 transition-transform hover:-translate-y-1"
     >
       {/* Wishlist Button */}
       <div
         className="absolute top-0 right-0 z-10 rounded-bl-xl rounded-tr-xl transition-colors"
-        style={{ backgroundColor: isInWishlist ? "#ef4444" : "#9ca3af" }}
+        style={{ backgroundColor: active ? "#ef4444" : "#9ca3af" }}
       >
         <button
           onClick={handleWishlistClick}
           className="p-2 transition-transform active:scale-95"
-          aria-label={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
+          aria-label={active ? "Remove from wishlist" : "Add to wishlist"}
         >
           <svg 
             width="20" height="20" viewBox="0 0 24 24" 
-            fill={isInWishlist ? "currentColor" : "none"} 
-            stroke={isInWishlist ? "currentColor" : "white"} 
+            fill={active ? "currentColor" : "none"} 
+            stroke={active ? "currentColor" : "white"} 
             strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-            className={isInWishlist ? "text-white" : ""}
+            className={active ? "text-white" : ""}
           >
             <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
           </svg>
@@ -64,10 +66,10 @@ export function ProductCard({ product }: { product: Product }) {
         </div>
 
         <div className="flex flex-col w-full justify-center gap-1">
-          <h2 className="md:text-lg text-sm font-semibold truncate text-slate-900 dark:text-white">
+          <h2 className="md:text-lg text-sm font-semibold truncate text-slate-900 dark:text-zinc-50">
             {product.title[locale]}
           </h2>
-          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+          <p className="text-sm font-medium text-slate-500 dark:text-zinc-400">
             {formatPrice(product.priceCents, locale)}
           </p>
         </div>
