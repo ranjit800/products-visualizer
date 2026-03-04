@@ -57,11 +57,6 @@ export function MobileViewer({ product, configId: propConfigId }: MobileViewerPr
       const viewerCanAR = !!viewer.canActivateAR;
       // Stricter check: only show if the browser claims AR support AND it's a mobile device
       const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      const isTouch = typeof window !== "undefined" && 
-        ("ontouchstart" in window || navigator.maxTouchPoints > 0);
-      setCanAR(viewerCanAR && (isMobileDevice || isTouch));
-      // NOTE: We kept isTouch as a fallback but prioritized isMobileDevice. 
-      // Actually, for the user's request, let's be even stricter.
       setCanAR(viewerCanAR && isMobileDevice);
     };
     viewer.addEventListener("load", onLoad);

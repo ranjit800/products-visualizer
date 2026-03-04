@@ -20,13 +20,15 @@ export function SharedProductCard({ product, config, id }: SharedProductCardProp
     const checkAR = () => {
       const viewer = viewerRef.current;
       if (viewer) {
+        const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
         // model-viewer emits 'load' when the model is ready
         const handleLoad = () => {
-          setCanAR(!!viewer.canActivateAR);
+          setCanAR(!!viewer.canActivateAR && isMobileDevice);
         };
         viewer.addEventListener("load", handleLoad);
         // If already loaded
-        if (viewer.loaded) setCanAR(!!viewer.canActivateAR);
+        if (viewer.loaded) setCanAR(!!viewer.canActivateAR && isMobileDevice);
         
         return () => viewer.removeEventListener("load", handleLoad);
       }
@@ -44,7 +46,7 @@ export function SharedProductCard({ product, config, id }: SharedProductCardProp
   };
 
   return (
-    <div className="mb-6 flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900 shadow-sm">
+    <div className="mb-6 flex flex-col gap-4  rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900 shadow-sm">
       <div className="flex items-center gap-4">
         <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-slate-100 dark:bg-slate-800">
           <Image

@@ -71,6 +71,7 @@ export function ConfiguratorModal({
   const [accessories, setAccessories] = React.useState<Record<string, boolean>>({
     cushion: false, armrest: false, lampshade: false, base: false,
   });
+  const [canAR, setCanAR] = React.useState(false);
 
   // ── Restore from configId on mount ──
   React.useEffect(() => {
@@ -141,6 +142,30 @@ export function ConfiguratorModal({
     viewer.addEventListener("load", applyConfiguration);
     return () => viewer.removeEventListener("load", applyConfiguration);
   }, [activeColor, accessories, ready]);
+
+  React.useEffect(() => {
+    const checkAR = () => {
+      const viewer = viewerRef.current;
+      if (viewer) {
+        const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
+        const handleLoad = () => {
+          // @ts-expect-error custom element
+          setCanAR(!!viewer.canActivateAR && isMobileDevice);
+        };
+        viewer.addEventListener("load", handleLoad);
+        // @ts-expect-error custom element
+        if (viewer.loaded) setCanAR(!!viewer.canActivateAR && isMobileDevice);
+        
+        return () => viewer.removeEventListener("load", handleLoad);
+      }
+    };
+    
+    if (ready) {
+      const timer = setTimeout(checkAR, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [ready]);
 
   const toggleAccessory = (id: string) =>
     setAccessories((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -472,24 +497,26 @@ export function ConfiguratorModal({
               },
               suppressHydrationWarning: true,
             }, (
-              <button
-                slot="ar-button"
-                style={{
-                  position: "absolute", bottom: isMobile ? 16 : 24, right: isMobile ? 12 : 24,
-                  backgroundColor: "#10b981", color: "white",
-                  borderRadius: 12, padding: isMobile ? "10px 14px" : "12px 20px",
-                  fontWeight: 700, fontSize: isMobile ? 12 : 14, border: "none",
-                  display: "flex", alignItems: "center", gap: 8,
-                  boxShadow: "0 4px 12px rgba(16,185,129,0.3)",
-                  cursor: "pointer", zIndex: 99
-                }}
-              >
-                <svg width={isMobile ? "16" : "18"} height={isMobile ? "16" : "18"} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-                  <polyline points="3.29 7 12 12 20.71 7"/><line x1="12" y1="22" x2="12" y2="12"/>
-                </svg>
-                {locale === "hi" ? "AR में देखें" : "View in AR"}
-              </button>
+              canAR && (
+                <button
+                  slot="ar-button"
+                  style={{
+                    position: "absolute", bottom: isMobile ? 16 : 24, right: isMobile ? 12 : 24,
+                    backgroundColor: "#10b981", color: "white",
+                    borderRadius: 12, padding: isMobile ? "10px 14px" : "12px 20px",
+                    fontWeight: 700, fontSize: isMobile ? 12 : 14, border: "none",
+                    display: "flex", alignItems: "center", gap: 8,
+                    boxShadow: "0 4px 12px rgba(16,185,129,0.3)",
+                    cursor: "pointer", zIndex: 99
+                  }}
+                >
+                  <svg width={isMobile ? "16" : "18"} height={isMobile ? "16" : "18"} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                    <polyline points="3.29 7 12 12 20.71 7"/><line x1="12" y1="22" x2="12" y2="12"/>
+                  </svg>
+                  {locale === "hi" ? "AR में देखें" : "View in AR"}
+                </button>
+              )
             ))
           ) : (
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%" }}>
