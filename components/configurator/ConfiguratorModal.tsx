@@ -147,15 +147,13 @@ export function ConfiguratorModal({
     const checkAR = () => {
       const viewer = viewerRef.current;
       if (viewer) {
-        const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        
         const handleLoad = () => {
           // @ts-expect-error custom element
-          setCanAR(!!viewer.canActivateAR && isMobileDevice);
+          setCanAR(!!viewer.canActivateAR);
         };
         viewer.addEventListener("load", handleLoad);
         // @ts-expect-error custom element
-        if (viewer.loaded) setCanAR(!!viewer.canActivateAR && isMobileDevice);
+        if (viewer.loaded) setCanAR(!!viewer.canActivateAR);
         
         return () => viewer.removeEventListener("load", handleLoad);
       }
@@ -166,6 +164,21 @@ export function ConfiguratorModal({
       return () => clearTimeout(timer);
     }
   }, [ready]);
+
+  const handleARClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    if (!isMobileDevice) {
+      alert(locale === "hi" ? "⚠ AR पूर्वावलोकन केवल मोबाइल उपकरणों पर समर्थित है।" : "⚠ AR preview is only supported on mobile devices.");
+      return;
+    }
+    
+    // @ts-expect-error custom element
+    if (viewerRef.current?.canActivateAR) {
+      // @ts-expect-error custom element
+      viewerRef.current.activateAR();
+    }
+  };
 
   const toggleAccessory = (id: string) =>
     setAccessories((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -500,6 +513,7 @@ export function ConfiguratorModal({
               canAR && (
                 <button
                   slot="ar-button"
+                  onClick={handleARClick}
                   style={{
                     position: "absolute", bottom: isMobile ? 16 : 24, right: isMobile ? 12 : 24,
                     backgroundColor: "#10b981", color: "white",

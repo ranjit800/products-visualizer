@@ -20,15 +20,13 @@ export function SharedProductCard({ product, config, id }: SharedProductCardProp
     const checkAR = () => {
       const viewer = viewerRef.current;
       if (viewer) {
-        const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        
         // model-viewer emits 'load' when the model is ready
         const handleLoad = () => {
-          setCanAR(!!viewer.canActivateAR && isMobileDevice);
+          setCanAR(!!viewer.canActivateAR);
         };
         viewer.addEventListener("load", handleLoad);
         // If already loaded
-        if (viewer.loaded) setCanAR(!!viewer.canActivateAR && isMobileDevice);
+        if (viewer.loaded) setCanAR(!!viewer.canActivateAR);
         
         return () => viewer.removeEventListener("load", handleLoad);
       }
@@ -39,7 +37,14 @@ export function SharedProductCard({ product, config, id }: SharedProductCardProp
     return () => clearTimeout(timer);
   }, []);
 
-  const handleARClick = () => {
+  const handleARClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    if (!isMobileDevice) {
+      alert("⚠ AR preview is only supported on mobile devices (iOS/Android).");
+      return;
+    }
+    
     if (viewerRef.current?.canActivateAR) {
       viewerRef.current.activateAR();
     }

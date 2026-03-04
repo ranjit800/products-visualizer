@@ -54,14 +54,24 @@ export function MobileViewer({ product, configId: propConfigId }: MobileViewerPr
     if (!viewer) return;
     const onLoad = () => {
       // @ts-expect-error custom element
-      const viewerCanAR = !!viewer.canActivateAR;
-      // Stricter check: only show if the browser claims AR support AND it's a mobile device
-      const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      setCanAR(viewerCanAR && isMobileDevice);
+      setCanAR(!!viewer.canActivateAR);
     };
     viewer.addEventListener("load", onLoad);
     return () => viewer.removeEventListener("load", onLoad);
   }, [ready]);
+
+  const handleARClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    if (!isMobileDevice) {
+      setShowARFailed(true);
+      setTimeout(() => setShowARFailed(false), 4000);
+      return;
+    }
+    const v = viewerRef.current;
+    // @ts-expect-error custom element
+    if (v && v.canActivateAR) v.activateAR();
+  };
 
   const getSheetHeight = () => {
     if (isDragging) {
@@ -183,11 +193,7 @@ export function MobileViewer({ product, configId: propConfigId }: MobileViewerPr
           {/* AR button — gated on enableAR feature flag */}
           {flags.enableAR && canAR && !showARFailed && (
             <button
-              onClick={() => {
-                const v = viewerRef.current;
-                // @ts-expect-error custom element
-                if (v && v.canActivateAR) v.activateAR();
-              }}
+              onClick={handleARClick}
               style={{
                 display: "flex", alignItems: "center", gap: 6,
                 padding: "8px 16px", borderRadius: 24,
