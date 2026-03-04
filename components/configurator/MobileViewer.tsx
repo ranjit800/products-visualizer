@@ -60,7 +60,7 @@ export function MobileViewer({ product, configId: propConfigId }: MobileViewerPr
     return () => viewer.removeEventListener("load", onLoad);
   }, [ready]);
 
-  const handleARClick = async (e: React.MouseEvent) => {
+  const handleARClick = (e: React.MouseEvent) => {
     e.preventDefault();
     const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     if (!isMobileDevice) {
@@ -68,27 +68,9 @@ export function MobileViewer({ product, configId: propConfigId }: MobileViewerPr
       setTimeout(() => setShowARFailed(false), 4000);
       return;
     }
-    const v = viewerRef.current as any;
-    if (v && v.canActivateAR) {
-      if (/Android/i.test(navigator.userAgent)) {
-        try {
-          const exportedBlob = await v.exportScene();
-          const objUrl = URL.createObjectURL(exportedBlob);
-          const originalSrc = v.src;
-          v.src = objUrl;
-          v.activateAR();
-          setTimeout(() => {
-            v.src = originalSrc;
-            URL.revokeObjectURL(objUrl);
-          }, 2000);
-        } catch (err) {
-          console.error("Failed to export AR scene:", err);
-          v.activateAR();
-        }
-      } else {
-        v.activateAR();
-      }
-    }
+    const v = viewerRef.current;
+    // @ts-expect-error custom element
+    if (v && v.canActivateAR) v.activateAR();
   };
 
   const getSheetHeight = () => {

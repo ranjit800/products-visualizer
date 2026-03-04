@@ -37,7 +37,7 @@ export function SharedProductCard({ product, config, id }: SharedProductCardProp
     return () => clearTimeout(timer);
   }, []);
 
-  const handleARClick = async (e: React.MouseEvent) => {
+  const handleARClick = (e: React.MouseEvent) => {
     e.preventDefault();
     const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     if (!isMobileDevice) {
@@ -45,31 +45,8 @@ export function SharedProductCard({ product, config, id }: SharedProductCardProp
       return;
     }
     
-    const viewer = viewerRef.current;
-    if (viewer && viewer.canActivateAR) {
-      // For Android Scene Viewer, we must export the customized scene first
-      if (/Android/i.test(navigator.userAgent)) {
-        try {
-          const exportedBlob = await viewer.exportScene();
-          const objUrl = URL.createObjectURL(exportedBlob);
-          const originalSrc = viewer.src;
-          viewer.src = objUrl;
-          
-          viewer.activateAR();
-          
-          // Cleanup obj URL after launching
-          setTimeout(() => {
-            viewer.src = originalSrc;
-            URL.revokeObjectURL(objUrl);
-          }, 2000);
-        } catch (err) {
-          console.error("Failed to export AR scene:", err);
-          viewer.activateAR(); // fallback
-        }
-      } else {
-        // iOS Quick Look handles it natively
-        viewer.activateAR();
-      }
+    if (viewerRef.current?.canActivateAR) {
+      viewerRef.current.activateAR();
     }
   };
 

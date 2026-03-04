@@ -165,7 +165,7 @@ export function ConfiguratorModal({
     }
   }, [ready]);
 
-  const handleARClick = async (e: React.MouseEvent) => {
+  const handleARClick = (e: React.MouseEvent) => {
     e.preventDefault();
     const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     if (!isMobileDevice) {
@@ -173,26 +173,10 @@ export function ConfiguratorModal({
       return;
     }
     
-    const viewer = viewerRef.current as any;
-    if (viewer && viewer.canActivateAR) {
-      if (/Android/i.test(navigator.userAgent)) {
-        try {
-          const exportedBlob = await viewer.exportScene();
-          const objUrl = URL.createObjectURL(exportedBlob);
-          const originalSrc = viewer.src;
-          viewer.src = objUrl;
-          viewer.activateAR();
-          setTimeout(() => {
-            viewer.src = originalSrc;
-            URL.revokeObjectURL(objUrl);
-          }, 2000);
-        } catch (err) {
-          console.error("Failed to export AR scene:", err);
-          viewer.activateAR();
-        }
-      } else {
-        viewer.activateAR();
-      }
+    // @ts-expect-error custom element
+    if (viewerRef.current?.canActivateAR) {
+      // @ts-expect-error custom element
+      viewerRef.current.activateAR();
     }
   };
 
