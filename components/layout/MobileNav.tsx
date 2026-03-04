@@ -15,7 +15,9 @@ export function MobileNav() {
   const isProductsPage = pathname === "/products";
   const isWishlistPage = pathname === "/wishlist";
   const isHomePage = pathname === "/";
-  if (isWishlistPage) return null;
+  const isSharePage = pathname.startsWith("/share");
+  
+  if (isWishlistPage || isSharePage) return null;
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-[#161616] border-t border-slate-200 dark:border-gray-800 backdrop-blur-xl h-16 flex items-center justify-around px-2 pb-safe">
