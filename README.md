@@ -254,6 +254,7 @@ https://products-visualizer-ranjit800s-projects.vercel.app/products/<slug>?confi
 
 | Area | Limitation |
 |---|---|
+| 3D Product Configurator | **Material Swaps:** While the data architecture and API fully support per-component material swaps (Velvet, Leather, etc.), the current `.glb` models are single-mesh assets. Visually, only global color swaps are currently active; material texture swaps are implemented as a "data-ready" proof-of-concept pending multi-mesh 3D assets. |
 | 3D models | Large `.glb` files (15-25 MB for some models) cause noticeable load time on mobile or slow connections — no Draco compression applied yet |
 | Undo / Redo | Zustand history is in-memory only; refreshing the page loses undo history |
 | WebSocket presence | `PresenceBadge.tsx` uses a stub — no real WebSocket server; presence is simulated locally |
