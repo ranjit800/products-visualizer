@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { Suspense } from "react";
 import { Filters, MobileFilters, Pagination, ProductCard } from "@/components/catalog";
+import { AnimatedPageHeader } from "@/components/catalog/AnimatedPageHeader";
 import { queryProducts, type ProductCategory } from "@/lib/products";
 
 export const metadata: Metadata = {
@@ -66,17 +67,12 @@ export default async function ProductsPage({
   return (
     <main className="mx-auto max-w-6xl px-4 py-10">
       {/* Desktop Header */}
-      <div className="hidden md:flex items-end justify-between gap-6">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">{dict.navProducts || "Products"}</h1>
-          <p className="mt-2 text-slate-600 dark:text-slate-300">
-            {locale === "hi" ? "फ़िल्टर लागू करें और उत्पाद सूची ब्राउज़ करें।" : "Apply filters and browse the product catalog."}
-          </p>
-        </div>
-        <p className="text-sm text-slate-600 dark:text-slate-300">
-          {total} {locale === "hi" ? "परिणाम" : "results"}
-        </p>
-      </div>
+      <AnimatedPageHeader
+        title={dict.navProducts || "Products"}
+        subtitle={locale === "hi" ? "फ़िल्टर लागू करें और उत्पाद सूची ब्राउज़ करें।" : "Apply filters and browse the product catalog."}
+        count={total}
+        countLabel={locale === "hi" ? "परिणाम" : "results"}
+      />
 
       {/* Mobile Top Nav (Slide Filters) */}
       <Suspense fallback={<div className="h-14 animate-pulse bg-slate-100 dark:bg-slate-900 md:hidden" />}>
@@ -101,8 +97,8 @@ export default async function ProductsPage({
           3 columns on desktop (md:grid-cols-3)
         */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
-          {items.map((p) => (
-            <ProductCard key={p.id} product={p} />
+          {items.map((p, i) => (
+            <ProductCard key={p.id} product={p} index={i} />
           ))}
         </div>
 

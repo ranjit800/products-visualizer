@@ -1,0 +1,54 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Visualizer / Introduction" />
+
+# Visualizer — Component Library
+
+Welcome to the **Visualizer** component library built with Storybook.
+
+This library documents every UI primitive and feature component used in the [Visualizer](https://products-visualizer-ranjit800s-projects.vercel.app/) 3D Product Configurator app.
+
+---
+
+## 📦 Component Groups
+
+| Group | Components |
+|---|---|
+| **UI (Design System)** | Button · Card · Modal · Badge · Input · Select · Slider · Toggle |
+| **Configurator** | PresenceBadge |
+
+---
+
+## 🎨 Design Tokens
+
+All components consume CSS custom properties from `app/globals.css`:
+
+- `--color-primary` — brand accent colour
+- `--color-surface` — card / panel background
+- `--color-text` — default text
+- Dark mode and High Contrast are toggled via the `data-theme` attribute on `<html>`
+
+---
+
+## ♿ Accessibility
+
+Every story is run through the **a11y addon** automatically.  
+Look for the **Accessibility** tab in each story to see WCAG audit results.
+
+---
+
+## 🧪 Running Storybook Locally
+
+```bash
+# From the products-visualizer directory
+npm run storybook
+# Opens http://localhost:6006
+```
+
+## 🏗️ Building a Static Storybook
+
+```bash
+npm run build-storybook
+# Output: storybook-static/
+```
+You can then deploy the `storybook-static/` folder to any static host (Netlify, Vercel, GitHub Pages).
