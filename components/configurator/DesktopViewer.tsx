@@ -264,7 +264,7 @@ export function DesktopViewer({ product, configId: propConfigId }: DesktopViewer
         flexShrink: 0,
         backgroundColor: "var(--bg-panel)",
         color: "var(--text-main)",
-        borderLeft: "1px solid rgba(255,255,255,0.08)",
+        borderLeft: "1px solid rgba(128,128,128,0.1)",
         overflowY: "auto",
         scrollbarWidth: "none",
         display: "flex",
@@ -326,17 +326,17 @@ export function DesktopViewer({ product, configId: propConfigId }: DesktopViewer
           {product.description[locale]}
         </p>
 
-        <div style={{ height: 1, backgroundColor: "rgba(255,255,255,0.06)" }} />
+        <div style={{ height: 1, backgroundColor: "rgba(128,128,128,0.1)" }} />
 
         {/* ── Configuration Controls ── */}
 
         {/* Material Color */}
         <section aria-labelledby="material-color-heading">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-            <h2 id="material-color-heading" style={{ color: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", margin: 0 }}>
+            <h2 id="material-color-heading" style={{ color: "var(--text-muted)", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", margin: 0 }}>
               {locale === "hi" ? "सामग्री का रंग" : "Material Color"}
             </h2>
-            <span style={{ fontSize: 10, fontFamily: "monospace", color: "rgba(255,255,255,0.3)" }}>
+            <span style={{ fontSize: 10, fontFamily: "monospace", color: "var(--text-muted)" }}>
               {activeColor ?? (locale === "hi" ? "डिफ़ॉल्ट" : "Default")}
             </span>
           </div>
@@ -362,7 +362,7 @@ export function DesktopViewer({ product, configId: propConfigId }: DesktopViewer
 
         {/* Lighting */}
         <section aria-labelledby="lighting-setup-heading">
-          <h2 id="lighting-setup-heading" style={{ color: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12 }}>
+          <h2 id="lighting-setup-heading" style={{ color: "var(--text-muted)", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12 }}>
             {locale === "hi" ? "प्रकाश व्यवस्था" : "Lighting Setup"}
           </h2>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
@@ -375,8 +375,8 @@ export function DesktopViewer({ product, configId: propConfigId }: DesktopViewer
                   style={{
                     display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
                     padding: "12px 8px", borderRadius: 12, border: "none", cursor: "pointer",
-                    backgroundColor: isActive ? "rgba(139,92,246,0.2)" : "rgba(255,255,255,0.04)",
-                    color: isActive ? "#a78bfa" : "rgba(255,255,255,0.4)",
+                    backgroundColor: isActive ? "rgba(139,92,246,0.2)" : "var(--bg-main)",
+                    color: isActive ? "#a78bfa" : "var(--text-muted)",
                     fontSize: 11, fontWeight: 600, transition: "all 0.15s",
                   }}
                 >
@@ -391,10 +391,10 @@ export function DesktopViewer({ product, configId: propConfigId }: DesktopViewer
         {/* Exposure */}
         <section aria-labelledby="exposure-heading">
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-            <h2 id="exposure-heading" style={{ color: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", margin: 0 }}>
+            <h2 id="exposure-heading" style={{ color: "var(--text-muted)", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", margin: 0 }}>
               {locale === "hi" ? "एक्सपोज़र" : "Exposure"}
             </h2>
-            <span style={{ fontSize: 10, fontFamily: "monospace", color: "rgba(255,255,255,0.3)" }}>
+            <span style={{ fontSize: 10, fontFamily: "monospace", color: "var(--text-muted)" }}>
               {exposure.toFixed(2)}
             </span>
           </div>
@@ -407,7 +407,7 @@ export function DesktopViewer({ product, configId: propConfigId }: DesktopViewer
 
         {/* Accessories */}
         <section aria-labelledby="components-heading">
-          <h2 id="components-heading" style={{ color: "rgba(255,255,255,0.3)", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12 }}>
+          <h2 id="components-heading" style={{ color: "var(--text-muted)", fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12 }}>
             {locale === "hi" ? "घटक" : "Components"}
           </h2>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -418,8 +418,8 @@ export function DesktopViewer({ product, configId: propConfigId }: DesktopViewer
                 style={{
                   display: "flex", alignItems: "center", gap: 12,
                   padding: "10px 16px", borderRadius: 12, border: "none", cursor: "pointer",
-                  backgroundColor: "rgba(255,255,255,0.04)",
-                  color: "rgba(255,255,255,0.7)", fontSize: 12, fontWeight: 600,
+                  backgroundColor: "var(--bg-main)",
+                  color: "var(--text-main)", fontSize: 12, fontWeight: 600,
                   transition: "all 0.15s",
                 }}
               >
@@ -427,7 +427,7 @@ export function DesktopViewer({ product, configId: propConfigId }: DesktopViewer
                 <span style={{ flex: 1, textAlign: "left" }}>{a.label[locale]}</span>
                 <div style={{
                   width: 32, height: 18, borderRadius: 10,
-                  backgroundColor: accessories[a.id] ? "#7c3aed" : "rgba(255,255,255,0.1)",
+                  backgroundColor: accessories[a.id] ? "#7c3aed" : "rgba(128,128,128,0.1)",
                   position: "relative", transition: "all 0.2s",
                 }}>
                   <div style={{
@@ -443,7 +443,7 @@ export function DesktopViewer({ product, configId: propConfigId }: DesktopViewer
         </section>
 
         {/* Hint */}
-        <p style={{ color: "rgba(255,255,255,0.2)", fontSize: 10, textAlign: "center", marginTop: "auto" }}>
+        <p style={{ color: "var(--text-muted)", fontSize: 10, textAlign: "center", marginTop: "auto", opacity: 0.6 }}>
           {locale === "hi" ? "🖱 परिक्रमा करने के लिए खींचें · 🖲 ज़ूम करने के लिए स्क्रॉल करें" : "🖱 Drag to orbit · 🖲 Scroll to zoom"}
         </p>
       </div>
